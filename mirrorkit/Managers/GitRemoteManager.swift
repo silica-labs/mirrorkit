@@ -18,13 +18,6 @@ enum GitRemoteError: Error, LocalizedError {
 
 final class GitRemoteManager {
     private let executor: CommandExecutor
-    private let defaults = UserDefaults.standard
-    private let savedOriginKey = "mirrorkit.savedBrewOrigin"
-
-    private var savedOrigin: String? {
-        get { defaults.string(forKey: savedOriginKey) }
-        set { defaults.set(newValue, forKey: savedOriginKey) }
-    }
 
     init(executor: CommandExecutor = CommandExecutor()) {
         self.executor = executor
@@ -32,10 +25,6 @@ final class GitRemoteManager {
 
     func setBrewRemote(_ source: MirrorSource) async throws {
         let brewPath = try await brewRepositoryPath()
-        if savedOrigin == nil {
-            savedOrigin = try await getCurrentOrigin(brewPath: brewPath)
-        }
-
         if let remoteURL = source.brewGitRemote {
             let result = try await executor.run("git", arguments: ["-C", brewPath, "remote", "set-url", "origin", remoteURL])
             guard result.exitCode == 0 else {
@@ -46,24 +35,10 @@ final class GitRemoteManager {
 
     func restoreOfficial() async throws {
         let brewPath = try await brewRepositoryPath()
-        let origin = savedOrigin ?? officialBrewRemote
-        let result = try await executor.run("git", arguments: ["-C", brewPath, "remote", "set-url", "origin", origin])
+        let result = try await executor.run("git", arguments: ["-C", brewPath, "remote", "set-url", "origin", officialBrewRemote])
         guard result.exitCode == 0 else {
             throw GitRemoteError.exitCode(result.exitCode, result.stderr)
         }
-        savedOrigin = nil
-    }
-
-    private func getCurrentOrigin(brewPath: String) async throws -> String {
-        let result = try await executor.run("git", arguments: ["-C", brewPath, "remote", "get-url", "origin"])
-        guard result.exitCode == 0 else {
-            throw GitRemoteError.exitCode(result.exitCode, result.stderr)
-        }
-        let origin = result.stdout.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !origin.isEmpty else {
-            throw GitRemoteError.invalidOutput("空白输出")
-        }
-        return origin
     }
 
     private func brewRepositoryPath() async throws -> String {
