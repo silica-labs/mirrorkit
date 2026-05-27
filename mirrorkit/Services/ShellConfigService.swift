@@ -35,6 +35,7 @@ final class ShellConfigService {
 
     func resetToOfficial() async throws {
         let path = try shellProfilePath()
+        guard FileManager.default.fileExists(atPath: path) else { return }
         let content = try String(contentsOfFile: path, encoding: .utf8)
 
         guard let startRange = content.range(of: markerStart) else { return }
@@ -51,6 +52,17 @@ final class ShellConfigService {
 
     private func shellProfilePath() throws -> String {
         let home = FileManager.default.homeDirectoryForCurrentUser.path
+        let shell = ProcessInfo.processInfo.environment["SHELL"] ?? ""
+
+        if shell.hasSuffix("/zsh") {
+            return home + "/.zshrc"
+        }
+        if shell.hasSuffix("/bash") {
+            let bashProfile = home + "/.bash_profile"
+            if FileManager.default.fileExists(atPath: bashProfile) { return bashProfile }
+            return home + "/.bashrc"
+        }
+
         let zshrc = home + "/.zshrc"
         if FileManager.default.fileExists(atPath: zshrc) { return zshrc }
         let bashProfile = home + "/.bash_profile"
