@@ -7,9 +7,9 @@ struct SidebarView: View {
     var body: some View {
         VStack(spacing: 0) {
             logoArea
-            Divider().overlay(Color.prismBorder)
+            Rectangle().fill(Color.prismBorder).frame(height: 1)
             menuList
-            Divider().overlay(Color.prismBorder)
+            Rectangle().fill(Color.prismBorder).frame(height: 1)
             bottomBar
         }
         .frame(minWidth: 200, idealWidth: 220)
