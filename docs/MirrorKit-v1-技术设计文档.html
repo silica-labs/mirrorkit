@@ -1,0 +1,811 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MirrorKit v1 — 技术设计文档</title>
+<style>
+  :root {
+    --bg: #0A0A0F;
+    --surface: #12121A;
+    --surface-alt: #18182A;
+    --border: #1E1E2A;
+    --text-primary: #E8E8ED;
+    --text-secondary: #88889A;
+    --accent: #00F0FF;
+    --accent-dim: rgba(0, 240, 255, 0.10);
+    --accent-warm: #FFB800;
+    --accent-warm-dim: rgba(255, 184, 0, 0.10);
+    --success: #34D399;
+    --warning: #FBBF24;
+    --error: #F87171;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, "SF Pro Text", "PingFang SC", "Helvetica Neue", sans-serif;
+    background: var(--bg);
+    color: var(--text-primary);
+    line-height: 1.7;
+    padding: 0;
+    -webkit-font-smoothing: antialiased;
+  }
+  .container { max-width: 960px; margin: 0 auto; padding: 48px 24px 80px; }
+
+  header {
+    padding: 48px 0 36px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 48px;
+  }
+  header h1 {
+    font-size: 32px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: var(--accent);
+    margin-bottom: 8px;
+  }
+  header .subtitle {
+    font-size: 16px;
+    color: var(--text-secondary);
+  }
+  header .meta {
+    margin-top: 16px;
+    font-size: 13px;
+    color: var(--text-secondary);
+    display: flex;
+    gap: 24px;
+    flex-wrap: wrap;
+  }
+  header .meta .tag {
+    display: inline-block;
+    background: var(--accent-dim);
+    color: var(--accent);
+    font-size: 11px;
+    font-weight: 600;
+    padding: 2px 10px;
+    border-radius: 4px;
+  }
+
+  section { margin-bottom: 48px; }
+  section h2 {
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--accent);
+    margin-bottom: 20px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  section h2 .num {
+    font-size: 13px;
+    color: var(--text-secondary);
+    font-weight: 400;
+    margin-right: 4px;
+  }
+  section h3 {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 28px 0 12px;
+  }
+  section h4 {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 20px 0 8px;
+  }
+  section h5 {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    margin: 16px 0 6px;
+  }
+  section p { margin-bottom: 14px; color: var(--text-secondary); font-size: 14px; }
+  section ul, section ol { margin: 12px 0 18px 20px; }
+  section li { margin-bottom: 8px; color: var(--text-secondary); font-size: 14px; }
+  section li strong { color: var(--text-primary); }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 16px 0 24px;
+    font-size: 13px;
+  }
+  th, td {
+    padding: 10px 14px;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+  }
+  th {
+    background: var(--surface);
+    color: var(--accent);
+    font-weight: 600;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+  }
+  td { color: var(--text-secondary); }
+  tr:hover td { background: rgba(255,255,255,0.02); }
+
+  .card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 16px;
+    margin: 16px 0 24px;
+  }
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 20px;
+  }
+  .card h4 { margin: 0 0 8px; font-size: 14px; }
+  .card p { margin: 0; font-size: 13px; }
+
+  .callout {
+    background: var(--surface);
+    border-left: 3px solid var(--accent);
+    padding: 16px 20px;
+    margin: 16px 0 24px;
+    border-radius: 0 6px 6px 0;
+    font-size: 14px;
+    color: var(--text-secondary);
+  }
+  .callout strong { color: var(--text-primary); }
+  .callout.warning { border-left-color: var(--warning); }
+  .callout.error { border-left-color: var(--error); }
+  .callout.success { border-left-color: var(--success); }
+  .callout.info { border-left-color: var(--accent); }
+
+  pre {
+    background: var(--surface);
+    padding: 16px;
+    border-radius: 6px;
+    font-size: 13px;
+    line-height: 1.6;
+    overflow-x: auto;
+    color: var(--text-secondary);
+    border: 1px solid var(--border);
+    font-family: 'SF Mono', 'Menlo', monospace;
+  }
+  code {
+    background: var(--surface-alt);
+    color: var(--accent);
+    font-family: 'SF Mono', 'Menlo', monospace;
+    font-size: 13px;
+    padding: 2px 6px;
+    border-radius: 3px;
+  }
+  pre code {
+    background: none;
+    color: var(--text-secondary);
+    padding: 0;
+    border-radius: 0;
+  }
+
+  .class-diagram {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 20px;
+    margin: 16px 0 24px;
+    font-family: 'SF Mono', 'Menlo', monospace;
+    font-size: 12px;
+    line-height: 1.5;
+    overflow-x: auto;
+  }
+  .class-diagram .kw { color: var(--accent); }
+  .class-diagram .type { color: var(--success); }
+  .class-diagram .comment { color: var(--text-secondary); }
+  .class-diagram .arrow { color: var(--warning); }
+
+  .flow pre {
+    background: transparent;
+    border: none;
+    padding: 0;
+    color: var(--text-secondary);
+  }
+
+  hr { border: none; border-top: 1px solid var(--border); margin: 36px 0; }
+
+  @media (max-width: 600px) {
+    .container { padding: 24px 16px 60px; }
+    header h1 { font-size: 26px; }
+    .card-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+<header>
+  <h1>MirrorKit v1 — 技术设计文档</h1>
+  <div class="subtitle">面向中国开发者的本地 Brew 镜像切换工具 · macOS 桌面应用</div>
+  <div class="meta">
+    <span>📅 2026-05-27</span>
+    <span>📌 版本：v1.0</span>
+    <span class="tag">Technical Design</span>
+  </div>
+</header>
+
+<!-- 1. 概述与范围 -->
+<section>
+  <h2><span class="num">01</span> 概述与范围</h2>
+
+  <h3>1.1 产品定义</h3>
+  <p>MirrorKit v1 是一款 macOS 桌面工具，专注于解决中国开发者在 <strong>Homebrew</strong> 使用中因网络限制导致的下载缓慢、连接失败问题。v1 仅做一件事——让 Homebrew 镜像源的管理和切换像点一下鼠标一样简单。</p>
+
+  <div class="callout info">
+    <strong>v1 核心范围：</strong>Homebrew 镜像源测速、一键切换、环境变量持久化。不包含代理管理、多工具 Registry 切换、DNS 诊断等功能（规划在后续版本）。
+  </div>
+
+  <h3>1.2 目标版本</h3>
+  <table>
+    <tr><th>维度</th><th>内容</th></tr>
+    <tr><td>平台</td><td>macOS 15.6+（Sequoia）</td></tr>
+    <tr><td>技术栈</td><td>Swift 6.0+ / SwiftUI + AppKit Hybrid</td></tr>
+    <tr><td>最低系统</td><td>macOS 15.6+</td></tr>
+    <tr><td>架构</td><td>MVVM + Service + Repository</td></tr>
+    <tr><td>设计语言</td><td>Cask Noir · Prism（棱镜）子语言</td></tr>
+    <tr><td>交付形态</td><td>.app 捆绑包 + CLI 工具（同一 Swift Package）</td></tr>
+  </table>
+</section>
+
+<!-- 2. 架构总览 -->
+<section>
+  <h2><span class="num">02</span> 架构总览</h2>
+
+  <h3>2.1 分层架构</h3>
+  <pre>
+┌──────────────────────────────────────────────────────┐
+│                    GUI Layer                           │
+│   MirrorDashboardView  MirrorListView  MirrorCard     │
+│   SnapshotView  SettingsView  StatusBarView           │
+├──────────────────────────────────────────────────────┤
+│                 Store / ViewModel Layer                │
+│   MirrorStore (@Observable)  SnapshotStore             │
+│   AppStore (global state, theme, active source)        │
+├──────────────────────────────────────────────────────┤
+│                   Service Layer                        │
+│   MirrorService  SpeedTestService  ShellConfigService  │
+│   SnapshotService                                      │
+├──────────────────────────────────────────────────────┤
+│                 Manager / Infrastructure               │
+│   GitRemoteManager  CommandExecutor (actor)            │
+│   BrewPathHelper  NetworkMonitor  MirrorEnvironment    │
+│   PrismColors  ThemeManager                             │
+├──────────────────────────────────────────────────────┤
+│               Persistence / System                     │
+│   UserDefaults (mirror selection)                      │
+│   ~/.zshrc / ~/.bash_profile (env vars)                │
+│   ~/.gitconfig (insteadOf rules)                       │
+│   FileSystem (.mirrorkit snapshot files)               │
+└──────────────────────────────────────────────────────┘</pre>
+
+  <div class="callout">
+    <strong>关键差异（vs BrewCrate）：</strong>BrewCrate 仅在子进程环境变量中注入镜像配置，而 MirrorKit v1 将配置写入 shell profile 文件（<code>~/.zshrc</code> / <code>~/.bash_profile</code>），使得配置在应用关闭后仍然全局生效。这是面向"网络治理"场景与"包管理 GUI"场景的本质区别。
+  </div>
+
+  <h3>2.2 模块依赖关系</h3>
+  <pre>
+┌─────────────┐     ┌──────────────┐     ┌───────────────┐
+│  MirrorStore │────▶│ MirrorService │────▶│ GitRemoteMgr  │
+└─────────────┘     └──────┬───────┘     └───────────────┘
+                           │                    │
+                           ▼                    ▼
+                    ┌──────────────┐     ┌───────────────┐
+                    │NetworkMonitor│     │CommandExecutor│
+                    └──────────────┘     └───────────────┘
+                           │
+                           ▼
+                    ┌──────────────┐     ┌──────────────────┐
+                    │ ShellConfig  │────▶│  MirrorEnvironment│
+                    │  Service     │     │    Builder       │
+                    └──────┬───────┘     └──────────────────┘
+                           │
+              ┌────────────┼────────────┐
+              ▼            ▼            ▼
+        ~/.zshrc    ~/.gitconfig   UserDefaults</pre>
+</section>
+
+<!-- 3. 核心模块设计 -->
+<section>
+  <h2><span class="num">03</span> 核心模块设计</h2>
+
+  <h3>3.1 镜像源数据模型</h3>
+  <p>v1 内置 7 个镜像源预设，与 BrewCrate 保持一致，但 API 域名仅用于测速参考，v1 实际不单独配置 API 域名（合并入 bottle 域名的路径规则）。</p>
+
+  <div class="card-grid">
+    <div class="card">
+      <h4>🌐 官方源</h4>
+      <p><code>brewGitRemote:</code> nil<br><code>bottleDomain:</code> nil<br>不设置任何镜像环境变量，恢复 Homebrew 原生行为。</p>
+    </div>
+    <div class="card">
+      <h4>🏫 清华 TUNA</h4>
+      <p><code>brew.git →</code> mirrors.tuna.tsinghua.edu.cn<br><code>bottles →</code> mirrors.tuna.tsinghua.edu.cn</p>
+    </div>
+    <div class="card">
+      <h4>🔬 中科大 USTC</h4>
+      <p><code>brew.git →</code> mirrors.ustc.edu.cn<br><code>bottles →</code> mirrors.ustc.edu.cn</p>
+    </div>
+    <div class="card">
+      <h4>☁️ 阿里云</h4>
+      <p><code>brew.git →</code> mirrors.aliyun.com<br><code>bottles →</code> mirrors.aliyun.com</p>
+    </div>
+    <div class="card">
+      <h4>💧 腾讯云</h4>
+      <p><code>brew.git →</code> mirrors.cloud.tencent.com<br><code>bottles →</code> mirrors.cloud.tencent.com</p>
+    </div>
+    <div class="card">
+      <h4>🌩️ 华为云</h4>
+      <p><code>brew.git →</code> repo.huaweicloud.com<br><code>bottles →</code> repo.huaweicloud.com</p>
+    </div>
+    <div class="card">
+      <h4>🎓 南京大学</h4>
+      <p><code>brew.git →</code> mirrors.nju.edu.cn<br><code>bottles →</code> mirrors.nju.edu.cn</p>
+    </div>
+  </div>
+
+  <div class="class-diagram">
+<span class="kw">struct</span> <span class="type">MirrorSource</span>: <span class="type">Identifiable</span>, <span class="type">Codable</span>, <span class="type">Equatable</span> {
+    <span class="kw">let</span> id: <span class="type">String</span>            <span class="comment">// "tsinghua", "ustc", ...</span>
+    <span class="kw">let</span> name: <span class="type">String</span>          <span class="comment">// "清华大学", ...</span>
+    <span class="kw">let</span> region: <span class="type">String</span>        <span class="comment">// "CN" / "Global"</span>
+    <span class="kw">let</span> brewGitRemote: <span class="type">String</span>? <span class="comment">// HOMEBREW_BREW_GIT_REMOTE</span>
+    <span class="kw">let</span> bottleDomain: <span class="type">String</span>?  <span class="comment">// HOMEBREW_BOTTLE_DOMAIN</span>
+    <span class="kw">let</span> apiDomain: <span class="type">String</span>?     <span class="comment">// 预留，v1 暂不独立配置</span>
+
+    <span class="comment">// 是否为官方源（所有 domain 均为 nil）</span>
+    <span class="kw">var</span> isOfficial: <span class="type">Bool</span> { brewGitRemote == <span class="kw">nil</span> && bottleDomain == <span class="kw">nil</span> }
+
+    <span class="kw">static let</span> allPresets: [<span class="type">MirrorSource</span>] = [ .official, .tsinghua, .ustc, .aliyun, .tencent, .huawei, .nju ]
+}</div>
+
+  <h3>3.2 测速引擎（SpeedTestService）</h3>
+  <p>采用与 BrewCrate 一致的并行 HTTP 延迟测量方案，v1 增加测速结果缓存与历史对比。</p>
+
+  <h4>测速流程</h4>
+  <pre>
+┌──────────┐    ┌───────────────┐    ┌─────────────┐
+│ 用户点击  │───▶│ SpeedTest     │───▶│ URLSession  │
+│ "测速"    │    │ Service       │    │ withTaskGroup│
+└──────────┘    └───────┬───────┘    └──────┬──────┘
+                        │                   │
+                        ▼                   ▼
+                 ┌──────────────┐   ┌──────────────┐
+                 │ 并发请求所有   │   │ 每个源分别    │
+                 │ 镜像源 bottle  │   │ 测量延迟      │
+                 │ domain 根路径  │   │ (并行 7 路)   │
+                 └──────┬───────┘   └──────┬──────┘
+                        │                   │
+                        ▼                   ▼
+                 ┌──────────────────────────────────┐
+                 │  结果聚合 → 排序 → 推荐最优       │
+                 │  (按延迟升序，失败源排在末尾)       │
+                 └──────────────────────────────────┘</pre>
+
+  <h4>接口设计</h4>
+  <pre>
+<span class="comment">// SpeedTestService.swift</span>
+<span class="kw">actor</span> <span class="type">SpeedTestService</span> {
+    <span class="kw">func</span> measureAllSources() <span class="kw">async</span> -> [<span class="type">String</span>: <span class="type">TimeInterval</span>]
+    <span class="comment">// 对所有 preset 发起并发 HTTP HEAD/GET 请求，返回 { sourceId: latencyMs }</span>
+
+    <span class="kw">func</span> measureSource(_ source: <span class="type">MirrorSource</span>) <span class="kw">async</span> -> <span class="type">TimeInterval</span>?
+    <span class="comment">// 对单个源测量，返回毫秒延迟，失败返回 nil</span>
+}</pre>
+
+  <h5>测速实现要点</h5>
+  <ul>
+    <li><strong>目标 URL：</strong> 取 <code>bottleDomain</code> 根路径（如 <code>https://mirrors.tuna.tsinghua.edu.cn/homebrew-bottles/</code>），官方源取 <code>https://formulae.brew.sh/</code></li>
+    <li><strong>超时：</strong> 单次请求 10s 超时</li>
+    <li><strong>并发：</strong> <code>withTaskGroup</code> 并行 7 路，任一完成即记录</li>
+    <li><strong>缓存：</strong> 测速结果在 Store 层缓存，用户手动刷新或进入页面超过 60s 后自动刷新</li>
+    <li><strong>可视化：</strong> 以横向条状图显示相对延迟，最短的显示为 100% 宽度，其余按比例缩放</li>
+  </ul>
+
+  <h3>3.3 环境配置服务（ShellConfigService）</h3>
+  <p>这是 MirrorKit 区别于 BrewCrate 的核心模块。BrewCrate 仅在启动子进程时注入环境变量，而 MirrorKit 需要将配置写入用户的 shell profile，使得全局终端会话都能生效。</p>
+
+  <h4>管理的配置项</h4>
+  <table>
+    <tr><th>环境变量 / 配置</th><th>值示例</th><th>写入位置</th></tr>
+    <tr><td><code>HOMEBREW_BREW_GIT_REMOTE</code></td><td><code>https://mirrors.tuna.tsinghua.edu.cn/git/homebrew/brew.git</code></td><td><code>~/.zshrc</code> / <code>~/.bash_profile</code></td></tr>
+    <tr><td><code>HOMEBREW_BOTTLE_DOMAIN</code></td><td><code>https://mirrors.tuna.tsinghua.edu.cn/homebrew-bottles</code></td><td><code>~/.zshrc</code> / <code>~/.bash_profile</code></td></tr>
+    <tr><td><code>HOMEBREW_API_DOMAIN</code></td><td><code>https://mirrors.tuna.tsinghua.edu.cn/homebrew-bottles/api</code></td><td><code>~/.zshrc</code> / <code>~/.bash_profile</code></td></tr>
+    <tr><td><code>git config --global url."&lt;mirror&gt;".insteadOf</code></td><td><code>https://github.com.cnpmjs.org/</code> insteadOf <code>https://github.com/</code></td><td><code>~/.gitconfig</code></td></tr>
+  </table>
+
+  <h4>Shell 文件写入策略</h4>
+  <pre>
+<span class="comment">// ShellConfigService.swift</span>
+
+<span class="comment">/// MirrorKit 管理的 shell 配置区块标记</span>
+<span class="kw">private let</span> markerStart = <span class="type">"# --- MirrorKit Managed ---"</span>
+<span class="kw">private let</span> markerEnd   = <span class="type">"# --- End MirrorKit ---"</span>
+
+<span class="comment">// 写入 ~/.zshrc</span>
+<span class="kw">func</span> applyMirrorConfig(_ source: <span class="type">MirrorSource</span>) <span class="kw">async throws</span> {
+    <span class="kw">let</span> envVars = <span class="type">MirrorEnvironmentBuilder</span>.environmentVariables(mirror: source)
+    <span class="comment">// 构建区块内容：</span>
+    <span class="comment">// # --- MirrorKit Managed ---</span>
+    <span class="comment">// export HOMEBREW_BREW_GIT_REMOTE=...</span>
+    <span class="comment">// export HOMEBREW_BOTTLE_DOMAIN=...</span>
+    <span class="comment">// export HOMEBREW_API_DOMAIN=...</span>
+    <span class="comment">// # --- End MirrorKit ---</span>
+    <span class="keyword">try</span> writeBlockToShellProfile(content)
+    <span class="keyword">try</span> applyGitInsteadOf(source)
+}
+
+<span class="comment">/// 恢复到官方源（清空区块）</span>
+<span class="kw">func</span> resetToOfficial() <span class="kw">async throws</span> {
+    <span class="keyword">try</span> removeBlockFromShellProfile()
+    <span class="keyword">try</span> removeGitInsteadOf()
+}</pre>
+
+  <div class="callout warning">
+    <strong>注意：</strong>写入前自动备份原 <code>~/.zshrc</code>（备份为 <code>~/.zshrc.mirrorkit.bak</code>），写入操作通过文件读写实现，不依赖 <code>sed</code> 等外部命令，确保在 macOS 上一致的行为。切换失败时自动回滚备份。
+  </div>
+
+  <h3>3.4 镜像切换流程（MirrorService）</h3>
+  <p>完整的"一键切换"编排由 <code>MirrorService</code> 完成，采用"备份 → 执行 → 提交 / 回滚"的事务式模式：</p>
+
+  <pre>
+┌──────────────────────────────────────────────────────────────────┐
+│  switchMirror(_ source: MirrorSource)                             │
+├──────────────────────────────────────────────────────────────────┤
+│  ① 备份当前 git remote 和 shell profile                           │
+│  ② 设置 brew origin remote → source.brewGitRemote                │
+│  ③ 写入 shell profile 区块（HOMEBREW_* 环境变量）                │
+│  ④ 配置 git insteadOf 规则                                       │
+│  ⑤ 全部成功 → 持久化选中状态到 UserDefaults                       │
+│  ⑥ 任一步失败 → 回滚：恢复 remote / 恢复 shell / 恢复 gitconfig    │
+│  ⑦ 返回 Result<Success, Error> + 操作日志                        │
+└──────────────────────────────────────────────────────────────────┘</pre>
+
+  <h4>接口声明</h4>
+  <pre>
+<span class="kw">@MainActor</span>
+<span class="kw">final class</span> <span class="type">MirrorService</span> {
+    <span class="kw">private let</span> gitManager: <span class="type">GitRemoteManager</span>
+    <span class="kw">private let</span> shellConfig: <span class="type">ShellConfigService</span>
+    <span class="kw">private let</span> speedTest: <span class="type">SpeedTestService</span>
+    <span class="kw">private let</span> persistence: <span class="type">MirrorPreferenceStore</span>
+
+    <span class="kw">var</span> activeMirror: <span class="type">MirrorSource</span> { persistence.selectedMirror }
+
+    <span class="kw">func</span> selectMirror(_ source: <span class="type">MirrorSource</span>) <span class="kw">async throws</span>
+    <span class="kw">func</span> resetToOfficial() <span class="kw">async throws</span>
+    <span class="kw">func</span> measureAll() <span class="kw">async</span> -> [<span class="type">String</span>: <span class="type">TimeInterval</span>]
+}</pre>
+
+  <h3>3.5 环境快照（SnapshotService）</h3>
+  <p>用户可将当前镜像配置导出为可分享的 <code>.mirrorkit</code> 文件，或从文件恢复配置。v1 快照仅包含镜像源 ID，不包含机器级信息，适合分享。</p>
+
+  <h4>快照格式</h4>
+  <pre>
+<span class="comment">// example.mirrorkit — 纯 JSON</span>
+{
+    <span class="type">"version"</span>: 1,
+    <span class="type">"createdAt"</span>: <span class="type">"2026-05-27T10:30:00Z"</span>,
+    <span class="type">"mirrorSourceId"</span>: <span class="type">"tsinghua"</span>,
+    <span class="type">"meta"</span>: {
+        <span class="type">"appVersion"</span>: <span class="type">"1.0.0"</span>,
+        <span class="type">"osVersion"</span>: <span class="type">"14.5"</span>
+    }
+}</pre>
+</section>
+
+<!-- 4. 数据持久化 -->
+<section>
+  <h2><span class="num">04</span> 数据持久化</h2>
+
+  <table>
+    <tr><th>数据</th><th>存储方式</th><th>Key / 路径</th></tr>
+    <tr><td>当前选中镜像源</td><td>UserDefaults (JSON)</td><td><code>mirrorkit.selectedMirror</code></td></tr>
+    <tr><td>测速历史（最新一次）</td><td>UserDefaults (JSON)</td><td><code>mirrorkit.lastSpeedTest</code></td></tr>
+    <tr><td>是否首次启动（引导提示）</td><td>UserDefaults (Bool)</td><td><code>mirrorkit.hasShownWelcome</code></td></tr>
+    <tr><td>最后活跃镜像 ID</td><td>UserDefaults (String)</td><td><code>mirrorkit.lastActiveSourceId</code></td></tr>
+    <tr><td>Shell 环境变量</td><td><code>~/.zshrc</code> 区块</td><td><code># --- MirrorKit Managed ---</code></td></tr>
+    <tr><td>Git insteadOf 规则</td><td><code>~/.gitconfig</code></td><td><code>git config --global</code></td></tr>
+    <tr><td>环境快照文件</td><td><code>.mirrorkit</code> JSON 文件</td><td>用户指定路径</td></tr>
+  </table>
+
+  <div class="class-diagram">
+<span class="kw">final class</span> <span class="type">MirrorPreferenceStore</span> {
+    <span class="kw">private let</span> defaults = <span class="type">UserDefaults</span>.standard
+    <span class="kw">private let</span> key_selected = <span class="type">"mirrorkit.selectedMirror"</span>
+
+    <span class="kw">var</span> selectedMirror: <span class="type">MirrorSource</span> {
+        <span class="kw">get</span> { <span class="comment">/* decode from UserDefaults */</span> }
+        <span class="kw">set</span> { <span class="comment">/* encode + save */</span> }
+    }
+}</div>
+</section>
+
+<!-- 5. 用户界面 -->
+<section>
+  <h2><span class="num">05</span> 用户界面</h2>
+
+  <h3>5.1 主界面布局</h3>
+  <pre>
+┌──────────────────────────────────────────────────────────┐
+│  ◈ MirrorKit                       当前: 清华  ⚙️ 设置   │
+├────────────┬─────────────────────────────────────────────┤
+│            │                                              │
+│  📊 仪表盘 │  ┌─ 当前镜片 ─────────────────────────────┐  │
+│  🔄 镜像源 │  │  清华大学 TUNA                    🟢 │  │
+│  📦 快照   │  │  延迟: 32ms  可用                      │  │
+│            │  │  状态: 已生效                           │  │
+│            │  └────────────────────────────────────────┘  │
+│            │                                              │
+│            ├─────────────────────────────────────────────┤
+│            │  镜像源列表                                   │
+│            │  ┌─────────────────────────────────────┐    │
+│            │  │ 🌐 官方源       45ms  ████████  ○   │    │
+│            │  │ 🏫 清华大学     32ms  ████████████ ●  │    │
+│            │  │ 🔬 中科大       48ms  ████████  ○   │    │
+│            │  │ ☁️  阿里云       67ms  ██████    ○   │    │
+│            │  │ 💧 腾讯云       89ms  ████      ○   │    │
+│            │  │ 🌩️ 华为云      112ms  ███       ○   │    │
+│            │  │ 🎓 南京大学     53ms  ███████   ○   │    │
+│            │  └─────────────────────────────────────┘    │
+│            │  [🔄 重新测速]  [⏹️ 切换到选中源]            │
+│            │                                              │
+│            ├─────────────────────────────────────────────┤
+│            │  操作日志                                     │
+│            │  ✅ 已切换到清华大学镜像源 (2026-05-27 10:30) │
+│            │  ℹ️ 环境变量已写入 ~/.zshrc                   │
+│            └─────────────────────────────────────────────┘
+├────────────┴─────────────────────────────────────────────┤
+│  ◈ 32ms │ 源: 清华 │ 已生效 │ v1.0.0                      │
+└──────────────────────────────────────────────────────────┘</pre>
+
+  <h3>5.2 主要视图与交互</h3>
+
+  <table>
+    <tr><th>视图</th><th>功能</th><th>Store</th></tr>
+    <tr><td><strong>DashboardView</strong></td><td>当前镜像状态卡片、生效配置摘要、状态指示器</td><td>MirrorStore</td></tr>
+    <tr><td><strong>MirrorListView</strong></td><td>镜像源列表 + 测速结果条状图 + 选中指示器 + "切换"按钮</td><td>MirrorStore</td></tr>
+    <tr><td><strong>SnapshotView</strong></td><td>快照列表（命名、导出、导入、删除）</td><td>SnapshotStore</td></tr>
+    <tr><td><strong>SettingsView</strong></td><td>主题切换、启动时自动测速、通知偏好</td><td>AppStore</td></tr>
+  </table>
+
+  <h3>5.3 设计语言</h3>
+  <p>以 <strong>Cask Noir</strong> 为基础框架，MirrorKit 建立子语言 <strong>Prism（棱镜）</strong> —— 冷冽精密的光学感设计：</p>
+  <ul>
+    <li>深色主题（<code>#0A0A0F</code>），主强调色为 <strong>冷光青（<code>#00F0FF</code>）</strong>，辅以琥珀金（<code>#FFB800</code>）作为操作反馈色</li>
+    <li>边框即层级，不使用阴影；选中项以冷光青边框 + 内发光表示</li>
+    <li>SF Pro 界面字体 + SF Mono 等宽字体（日志/数据）</li>
+    <li>测速条状图使用冷光青渐变：<code>#00F0FF</code>（低延迟）→ <code>#007AFF</code>（中延迟）→ <code>#F87171</code>（高延迟/失败）</li>
+    <li>选中镜像源以冷光青高亮 + 镜面反射光晕效果</li>
+    <li>测速时脉冲波纹动效（雷达扫描感），切换成功时镜面闪光动效</li>
+  </ul>
+</section>
+
+<!-- 6. CLI 设计 -->
+<section>
+  <h2><span class="num">06</span> CLI 设计</h2>
+
+  <p>CLI 与 GUI 共享同一套 Service 层代码，通过同一 Swift Package 构建。CLI 使用 <code>ArgumentParser</code> 框架。</p>
+
+  <h4>命令结构</h4>
+  <pre>
+<span class="type">mirrorkit</span> <span class="kw">-- 一款 Homebrew 镜像切换工具</span>
+
+<span class="type">USAGE</span>
+    mirrorkit &lt;subcommand&gt; [options]
+
+<span class="type">SUBCOMMANDS</span>
+    <span class="kw">status</span>                   显示当前镜像源及生效状态
+    <span class="kw">list</span>                     列出所有可用镜像源
+    <span class="kw">speedtest</span>                对所有源进行测速
+    <span class="kw">switch</span> &lt;source-id&gt;       切换到指定镜像源
+    <span class="kw">reset</span>                    重置为官方源
+    <span class="kw">snapshot</span> &lt;export|import&gt;  快照管理
+    <span class="kw">version</span>                  显示版本信息</pre>
+
+  <h4>示例</h4>
+  <pre>
+<span class="comment"># 查看当前状态</span>
+$ mirrorkit status
+  🏫 当前: 清华大学 (已生效)
+  📡 延迟: 32ms
+  📝 env: ~/.zshrc 已配置
+
+<span class="comment"># 测速</span>
+$ mirrorkit speedtest
+  🌐 官方源      45ms
+  🏫 清华大学    32ms  ← 推荐
+  🔬 中科大      48ms
+  ...
+
+<span class="comment"># 切换</span>
+$ mirrorkit switch tsinghua
+  ✅ 已切换到清华大学镜像源
+  📝 ~/.zshrc 已更新
+  📝 ~/.gitconfig 已更新</pre>
+</section>
+
+<!-- 7. 技术选型与依赖 -->
+<section>
+  <h2><span class="num">07</span> 技术选型与依赖</h2>
+
+  <table>
+    <tr><th>层</th><th>技术</th><th>版本</th><th>说明</th></tr>
+    <tr><td>GUI 框架</td><td>SwiftUI + AppKit Hybrid</td><td>—</td><td>SwiftUI 为主，NSViewRepresentable 桥接复杂控件</td></tr>
+    <tr><td>语言</td><td>Swift</td><td>5.9+</td><td>原生 async/await 并发</td></tr>
+    <tr><td>CLI</td><td>Swift Package (ArgumentParser)</td><td>1.3+</td><td>与 GUI 共享 Service 代码</td></tr>
+    <tr><td>网络检测</td><td>URLSession</td><td>—</td><td>系统原生 HTTP 测速</td></tr>
+    <tr><td>端口探测</td><td>Darwin socket (poll)</td><td>—</td><td>非阻塞 connect + 500ms 超时</td></tr>
+    <tr><td>设置持久化</td><td>UserDefaults</td><td>—</td><td>应用偏好存储</td></tr>
+    <tr><td>Shell 集成</td><td>FileManager + String 操作</td><td>—</td><td>直接读写 ~/.zshrc 区块</td></tr>
+    <tr><td>Git 操作</td><td>Process (git CLI)</td><td>—</td><td>通过 Process 执行 git 命令</td></tr>
+    <tr><td>设计系统</td><td>Cask Noir · Prism</td><td>—</td><td>以冷光青（#00F0FF）为主色，琥珀金（#FFB800）为辅；Color / Font / ButtonStyle 扩展</td></tr>
+    <tr><td>构建工具</td><td>Xcode + Swift Package Manager</td><td>15+</td><td>单一项目，CLI target + GUI target</td></tr>
+  </table>
+</section>
+
+<!-- 8. 项目结构 -->
+<section>
+  <h2><span class="num">08</span> 项目结构</h2>
+
+  <pre>
+MirrorKit/
+├── Package.swift                        <span class="comment">// Swift Package (共享 Service 层)</span>
+├── Sources/
+│   ├── MirrorKitCore/                   <span class="comment">// 与服务 CLI 共享的核心库</span>
+│   │   ├── Models/
+│   │   │   ├── MirrorSource.swift
+│   │   │   └── Snapshot.swift
+│   │   ├── Services/
+│   │   │   ├── MirrorService.swift
+│   │   │   ├── SpeedTestService.swift
+│   │   │   ├── ShellConfigService.swift
+│   │   │   └── SnapshotService.swift
+│   │   ├── Managers/
+│   │   │   ├── GitRemoteManager.swift
+│   │   │   └── BrewPathHelper.swift
+│   │   ├── Infrastructure/
+│   │   │   ├── CommandExecutor.swift      <span class="comment">// actor</span>
+│   │   │   ├── NetworkMonitor.swift
+│   │   │   ├── MirrorEnvironmentBuilder.swift
+│   │   │   └── MirrorPreferenceStore.swift
+│   │   └── Prism/                         <span class="comment">// 设计系统（Cask Noir · Prism）</span>
+│   │       ├── PrismColors.swift
+│   │       ├── PrismFonts.swift
+│   │       └── PrismButtonStyle.swift
+│   ├── MirrorKitCLI/                     <span class="comment">// CLI 入口</span>
+│   │   ├── main.swift
+│   │   └── Commands/
+│   │       ├── StatusCommand.swift
+│   │       ├── ListCommand.swift
+│   │       ├── SpeedtestCommand.swift
+│   │       ├── SwitchCommand.swift
+│   │       ├── ResetCommand.swift
+│   │       └── SnapshotCommand.swift
+│   └── MirrorKitApp/                     <span class="comment">// GUI 入口</span>
+│       ├── MirrorKitApp.swift
+│       ├── Stores/
+│       │   ├── MirrorStore.swift
+│       │   ├── SnapshotStore.swift
+│       │   └── AppStore.swift
+│       └── Views/
+│           ├── DashboardView.swift
+│           ├── MirrorListView.swift
+│           ├── MirrorRowView.swift
+│           ├── SnapshotView.swift
+│           ├── SettingsView.swift
+│           ├── StatusBarView.swift
+│           └── Components/
+│               ├── LatencyBar.swift
+│               ├── StatusIndicator.swift
+│               └── LogPanel.swift
+├── Resources/
+│   └── Presets/
+│       └── mirror_sources.json           <span class="comment">// 镜像源列表，可独立更新</span>
+└── Tests/
+    ├── MirrorKitCoreTests/
+    │   ├── MirrorServiceTests.swift
+    │   ├── ShellConfigServiceTests.swift
+    │   └── MirrorEnvironmentBuilderTests.swift
+    └── MirrorKitCLITests/</pre>
+</section>
+
+<!-- 9. 关键实现细节 -->
+<section>
+  <h2><span class="num">09</span> 关键实现细节</h2>
+
+  <h3>9.1 Shell 区块读写</h3>
+  <p>借鉴 BrewCrate 的 <code>MirrorEnvironmentBuilder</code> 生成环境变量键值对，但写入策略完全不同：</p>
+  <ul>
+    <li><code>ShellConfigService</code> 读取 <code>~/.zshrc</code>（优先）或 <code>~/.bash_profile</code>（fallback）全文</li>
+    <li>查找 <code># --- MirrorKit Managed ---</code> 标记，替换其与结束标记之间的全部内容</li>
+    <li>如无标记，在文件末尾追加新区块</li>
+    <li>写入前备份，写入后 <code>source</code> 命令不执行（仅在新建终端生效），通过菜单栏通知告知用户"打开新终端生效"</li>
+    <li>官方源切换时，移除整个区块（而非写入空值）</li>
+  </ul>
+
+  <h3>9.2 Git insteadOf 规则管理</h3>
+  <p>v1 仅管理 Homebrew 核心仓库的 remote URL，不涉及通用 GitHub insteadOf（后者规划在 v1.5 的多工具覆盖中）：</p>
+  <ul>
+    <li>切换镜像：<code>git -C $(brew --repository) remote set-url origin &lt;mirror-url&gt;</code></li>
+    <li>备份当前 origin URL 用于回滚</li>
+    <li>切换官方源时恢复备份的 origin URL</li>
+  </ul>
+
+  <h3>9.3 地理位置检测</h3>
+  <ul>
+    <li>启动时检测 <code>Locale.current.region</code> 是否为 "CN"</li>
+    <li>是 → 没有已经配置过的镜像 → 弹出首次使用引导："检测到您在中国大陆，是否配置镜像源？"</li>
+    <li>用户可勾选"不再提示"</li>
+  </ul>
+
+  <h3>9.4 错误处理与回滚</h3>
+  <pre>
+<span class="kw">enum</span> <span class="type">MirrorError</span>: <span class="type">Error</span> {
+    <span class="kw">case</span> brewNotInstalled
+    <span class="kw">case</span> brewRepositoryNotFound
+    <span class="kw">case</span> gitOperationFailed(<span class="type">String</span>)
+    <span class="kw">case</span> shellProfileNotFound
+    <span class="kw">case</span> shellProfileWriteFailed(<span class="type">String</span>)
+    <span class="kw">case</span> rollbackFailed(<span class="type">String</span>)
+    <span class="kw">case</span> unknown(<span class="type">String</span>)
+}
+</pre>
+  <p>所有切换操作都遵循"备份 → 执行 → 提交/回滚"模式。任一步骤失败时，自动回滚所有已执行的操作并恢复备份。</p>
+</section>
+
+<!-- 10. 里程碑 -->
+<section>
+  <h2><span class="num">10</span> 实现里程碑</h2>
+
+  <table>
+    <tr><th>阶段</th><th>内容</th><th>交付物</th><th>预估</th></tr>
+    <tr>
+      <td><strong>M1 基础设施</strong></td>
+      <td>项目脚手架、Swift Package 结构、Cask Noir · Prism 设计系统、CommandExecutor、BrewPathHelper</td>
+      <td>可编译的空白 app + CLI</td>
+      <td>3 天</td>
+    </tr>
+    <tr>
+      <td><strong>M2 核心逻辑</strong></td>
+      <td>MirrorSource 模型、SpeedTestService、ShellConfigService、GitRemoteManager、MirrorService</td>
+      <td>CLI 可完成测速和切换</td>
+      <td>5 天</td>
+    </tr>
+    <tr>
+      <td><strong>M3 GUI</strong></td>
+      <td>MirrorStore、DashboardView、MirrorListView、StatusBar、测速条状图、切换交互</td>
+      <td>GUI 可用</td>
+      <td>5 天</td>
+    </tr>
+    <tr>
+      <td><strong>M4 快照与设置</strong></td>
+      <td>SnapshotService、SnapshotView、SettingsView、首次引导</td>
+      <td>功能完整</td>
+      <td>3 天</td>
+    </tr>
+    <tr>
+      <td><strong>M5 打磨</strong></td>
+      <td>错误处理、回滚测试、UI 动画、图标、App 签名</td>
+      <td>V1.0 Release</td>
+      <td>4 天</td>
+    </tr>
+  </table>
+
+  <div class="callout success">
+    <strong>总计预估：</strong>20 个工作日，约 4 周。
+  </div>
+</section>
+
+<hr>
+
+<footer style="text-align: center; color: var(--text-secondary); font-size: 12px; opacity: 0.6;">
+  MirrorKit v1 技术设计文档 · 2026-05-27
+</footer>
+
+</div>
+</body>
+</html>
