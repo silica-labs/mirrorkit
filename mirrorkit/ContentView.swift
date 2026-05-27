@@ -18,7 +18,7 @@ struct ContentView: View {
     private var detailView: some View {
         switch selectedItem {
         case .dashboard:
-            DashboardPlaceholder()
+            DashboardView(selectedItem: $selectedItem)
         case .brew:
             BrewMirrorView()
         default:
