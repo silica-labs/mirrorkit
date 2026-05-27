@@ -42,7 +42,7 @@ struct ConfirmDialog: View {
                 VStack(spacing: 8) {
                     Text(title)
                         .font(.prismTitle)
-                        .foregroundColor(.prismTextPrimary)
+                    .foregroundColor(.prismTextSecondary)
 
                     Text(message)
                         .font(.prismBody)
@@ -56,28 +56,34 @@ struct ConfirmDialog: View {
                     .overlay(Color.prismBorder)
 
                 HStack(spacing: 0) {
-                    Button(cancelTitle) {
+                    Button(action: {
                         dismiss()
                         onCancel()
+                    }) {
+                        Text(cancelTitle)
+                            .font(.prismButton)
+                            .foregroundColor(.prismTextSecondary)
+                            .frame(maxWidth: .infinity, maxHeight: .infinity)
+                            .contentShape(Rectangle())
                     }
                     .buttonStyle(.plain)
-                    .font(.prismButton)
-                    .foregroundColor(.prismTextPrimary)
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 12)
 
                     Divider()
                         .overlay(Color.prismBorder)
 
-                    Button(confirmTitle) {
+                    Button(action: {
                         dismiss()
                         onConfirm()
+                    }) {
+                        Text(confirmTitle)
+                            .font(.prismButton)
+                            .foregroundColor(isDestructive ? .prismError : .prismAccent)
+                            .fontWeight(.semibold)
+                            .frame(maxWidth: .infinity, maxHeight: .infinity)
+                            .background((isDestructive ? Color.prismError : Color.prismAccent).opacity(0.1))
+                            .contentShape(Rectangle())
                     }
                     .buttonStyle(.plain)
-                    .font(.prismButton)
-                    .foregroundColor(isDestructive ? .prismError : .prismAccent)
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 12)
                 }
                 .frame(height: 44)
             }

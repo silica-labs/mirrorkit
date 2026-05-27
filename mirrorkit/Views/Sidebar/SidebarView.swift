@@ -56,12 +56,18 @@ struct SidebarView: View {
     private func menuRow(_ item: SidebarItem) -> some View {
         let isSelected = selectedItem == item
         return Button(action: { selectedItem = item }) {
-            Label(item.title, systemImage: item.systemImage)
-                .font(.prismBody)
-                .foregroundColor(isSelected ? .prismAccent : .prismTextPrimary)
-                .padding(.leading, 16)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(.vertical, 10)
+            HStack(spacing: 10) {
+                Image(systemName: item.systemImage)
+                    .font(.system(size: 14, weight: .regular))
+                    .foregroundColor(isSelected ? .prismAccent : .prismTextPrimary)
+                    .frame(width: 20, alignment: .center)
+                Text(item.title)
+                    .font(.prismBody)
+                    .foregroundColor(isSelected ? .prismAccent : .prismTextPrimary)
+            }
+            .padding(.leading, 16)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.vertical, 10)
                 .background(isSelected ? Color.prismAccentDim : Color.clear)
                 .overlay(
                     Rectangle()

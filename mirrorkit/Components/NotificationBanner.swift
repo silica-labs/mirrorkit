@@ -67,12 +67,16 @@ struct NotificationBanner: View {
             }
             .padding(.horizontal, 12)
             .padding(.vertical, 10)
-            .background(style.color.opacity(0.08))
+            .background(Color.prismSurface)
+            .overlay(
+                RoundedRectangle(cornerRadius: 6)
+                    .fill(style.color.opacity(0.08))
+            )
             .overlay(
                 RoundedRectangle(cornerRadius: 6)
                     .stroke(style.color.opacity(0.3), lineWidth: 1)
             )
-            .cornerRadius(6)
+            .clipShape(RoundedRectangle(cornerRadius: 6))
             .transition(.opacity.combined(with: .move(edge: .top)))
         }
     }

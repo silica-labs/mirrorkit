@@ -12,6 +12,7 @@ struct LoadingOverlay: View {
             ProgressView()
                 .scaleEffect(1.2)
                 .progressViewStyle(CircularProgressViewStyle(tint: .prismAccent))
+                .frame(width: 24, height: 24)
 
             if let message = message {
                 Text(message)

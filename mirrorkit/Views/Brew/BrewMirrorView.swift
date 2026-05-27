@@ -1,0 +1,118 @@
+import SwiftUI
+
+struct BrewMirrorView: View {
+    @State private var vm = BrewMirrorVM()
+
+    @State private var showConfirm = false
+    @State private var showBanner = false
+    @State private var bannerStyle: NotificationBanner.Style = .success
+    @State private var bannerMessage = ""
+    @State private var expandedLogIds: Set<UUID> = []
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            headerArea
+            Divider().overlay(Color.prismBorder)
+
+            ScrollView {
+                VStack(spacing: 20) {
+                    ActiveMirrorCard(
+                        mirror: vm.activeMirror,
+                        latency: vm.latencyResults[vm.activeMirrorId],
+                        isMeasuring: vm.isMeasuring
+                    )
+
+                    MirrorListView(
+                        mirrors: vm.mirrors,
+                        latencyResults: vm.latencyResults,
+                        activeMirrorId: vm.activeMirrorId,
+                        maxLatency: vm.maxLatency,
+                        isMeasuring: vm.isMeasuring,
+                        onSelect: { mirror in
+                            vm.requestSwitch(to: mirror)
+                        }
+                    )
+
+                    OperationLogView(
+                        logs: vm.logs,
+                        expandedLogIds: $expandedLogIds
+                    )
+                }
+                .padding(20)
+            }
+        }
+        .background(Color.prismBackground)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .onAppear { vm.startSpeedTest() }
+        .overlay(alignment: .top) {
+            if showBanner {
+                NotificationBanner(style: bannerStyle, message: bannerMessage, onDismiss: { showBanner = false })
+                    .padding(.horizontal, 20)
+                    .padding(.top, 8)
+                    .transition(.opacity.combined(with: .move(edge: .top)))
+            }
+        }
+        .animation(.easeOut(duration: 0.2), value: showBanner)
+        .loadingOverlay(vm.isSwitching, message: "正在切换镜像源...")
+        .confirmDialog(
+            isPresented: $showConfirm,
+            title: "切换到 \(vm.pendingMirror?.name ?? "")",
+            message: "切换后将更新 ~/.zshrc 环境变量和 Homebrew 仓库 remote。",
+            confirmTitle: "切换",
+            onConfirm: {
+                vm.confirmSwitch()
+            },
+            onCancel: {
+                vm.cancelSwitch()
+            }
+        )
+        .onChange(of: vm.pendingMirror) { _, newValue in
+            showConfirm = newValue != nil
+            if newValue == nil { showConfirm = false }
+        }
+        .onChange(of: vm.logs.count) { _, _ in
+            if let lastLog = vm.logs.first {
+                if lastLog.icon == "xmark.circle" {
+                    showBannerMessage(style: .error, message: "切换失败")
+                } else if lastLog.icon != "info.circle" {
+                    showBannerMessage(style: .success, message: lastLog.message)
+                }
+            }
+        }
+    }
+
+    private var headerArea: some View {
+        HStack {
+            Image(systemName: "mug")
+                .font(.system(size: 18))
+                .foregroundColor(.prismAccent)
+            Text("Brew 镜像设置")
+                .font(.prismTitle)
+                .foregroundColor(.prismTextPrimary)
+            Spacer()
+            if let elapsed = vm.elapsedSinceLastMeasured {
+                Text("上次测速: \(elapsed)")
+                    .font(.prismCaption)
+                    .foregroundColor(.prismTextTertiary)
+            }
+            PrismButton(vm.isMeasuring ? "测速中..." : "重新测速", systemImage: "arrow.clockwise", style: .secondary, isDisabled: vm.isMeasuring, isLoading: vm.isMeasuring, action: vm.startSpeedTest)
+                .keyboardShortcut("r", modifiers: .command)
+        }
+        .padding(.horizontal, 20)
+        .padding(.vertical, 12)
+    }
+
+    private func showBannerMessage(style: NotificationBanner.Style, message: String) {
+        bannerStyle = style
+        bannerMessage = message
+        showBanner = true
+        DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+            showBanner = false
+        }
+    }
+}
+
+#Preview {
+    BrewMirrorView()
+        .frame(width: 700, height: 600)
+}

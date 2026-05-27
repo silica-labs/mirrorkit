@@ -19,6 +19,8 @@ struct ContentView: View {
         switch selectedItem {
         case .dashboard:
             DashboardPlaceholder()
+        case .brew:
+            BrewMirrorView()
         default:
             placeholder(for: selectedItem)
         }

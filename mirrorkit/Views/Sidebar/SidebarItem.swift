@@ -23,7 +23,7 @@ enum SidebarItem: String, Hashable, CaseIterable {
         switch self {
         case .dashboard: return "gauge.medium"
         case .brew: return "mug"
-        case .github: return "network"
+        case .github: return "chevron.left.forwardslash.chevron.right"
         case .npm: return "cube"
         case .proxy: return "arrow.triangle.branch"
         case .diagnostics: return "stethoscope"

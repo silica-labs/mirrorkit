@@ -1,4 +1,5 @@
 import SwiftUI
+import Combine
 
 struct PrismButton: View {
     enum Style {
@@ -13,6 +14,8 @@ struct PrismButton: View {
     var isLoading: Bool = false
 
     @State private var isPressed = false
+    @State private var angle: Double = 0
+    @State private var timer: AnyCancellable?
 
     init(
         _ title: String? = nil,
@@ -41,9 +44,24 @@ struct PrismButton: View {
         }) {
             HStack(spacing: 6) {
                 if isLoading {
-                    ProgressView()
-                        .scaleEffect(0.7)
-                        .progressViewStyle(CircularProgressViewStyle(tint: style == .primary || style == .icon ? .white : .prismAccent))
+                    Circle()
+                        .trim(from: 0, to: 0.7)
+                        .stroke(
+                            style == .primary || style == .icon ? Color.white : Color.prismAccent,
+                            style: StrokeStyle(lineWidth: 2, lineCap: .round)
+                        )
+                        .rotationEffect(.degrees(angle))
+                        .frame(width: 13, height: 13)
+                        .onAppear {
+                            angle = 0
+                            timer = Timer.publish(every: 0.016, on: .main, in: .common).autoconnect().sink { _ in
+                                angle = (angle + 7.5).truncatingRemainder(dividingBy: 360)
+                            }
+                        }
+                        .onDisappear {
+                            timer?.cancel()
+                            timer = nil
+                        }
                 } else if let image = systemImage {
                     Image(systemName: image)
                         .font(.system(size: style == .icon ? 16 : 13))
@@ -64,7 +82,7 @@ struct PrismButton: View {
             )
             .cornerRadius(style == .icon ? 4 : 6)
             .scaleEffect(isPressed ? 0.97 : 1.0)
-            .opacity(isDisabled ? 0.4 : 1.0)
+            .opacity(isDisabled ? 0.6 : 1.0)
         }
         .buttonStyle(.plain)
         .animation(.easeOut(duration: 0.15), value: isPressed)
