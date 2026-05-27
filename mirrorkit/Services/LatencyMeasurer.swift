@@ -1,12 +1,12 @@
 import Foundation
 
 final class LatencyMeasurer {
-    func measure(url: String) async -> TimeInterval {
+    func measure(url: String, timeoutInterval: TimeInterval = 5) async -> TimeInterval {
         guard let url = URL(string: url) else { return .infinity }
         let start = Date()
         var request = URLRequest(url: url)
         request.httpMethod = "HEAD"
-        request.timeoutInterval = 5
+        request.timeoutInterval = timeoutInterval
         do {
             let (_, response) = try await URLSession.shared.data(for: request)
             guard let httpResponse = response as? HTTPURLResponse,

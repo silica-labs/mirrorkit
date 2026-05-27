@@ -21,6 +21,8 @@ struct ContentView: View {
             DashboardView(selectedItem: $selectedItem)
         case .brew:
             BrewMirrorView()
+        case .github:
+            GitHubMirrorView()
         default:
             placeholder(for: selectedItem)
         }

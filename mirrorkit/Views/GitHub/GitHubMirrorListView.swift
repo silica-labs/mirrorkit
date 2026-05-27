@@ -1,12 +1,12 @@
 import SwiftUI
 
-struct MirrorListView: View {
-    let mirrors: [MirrorSource]
+struct GitHubMirrorListView: View {
+    let mirrors: [GitHubMirror]
     let latencyResults: [String: TimeInterval]
     let activeMirrorId: String
     let maxLatency: TimeInterval
     let isMeasuring: Bool
-    let onSelect: (MirrorSource) -> Void
+    let onSelect: (GitHubMirror) -> Void
 
     var body: some View {
         VStack(spacing: 0) {
@@ -25,7 +25,7 @@ struct MirrorListView: View {
         .cornerRadius(8)
     }
 
-    private func mirrorRow(_ mirror: MirrorSource) -> some View {
+    private func mirrorRow(_ mirror: GitHubMirror) -> some View {
         let isActive = mirror.id == activeMirrorId
         let latency = latencyResults[mirror.id]
         let isUnreachable = !mirror.isOfficial && latency == .infinity
