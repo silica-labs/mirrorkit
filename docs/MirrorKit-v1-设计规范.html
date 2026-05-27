@@ -1,0 +1,805 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MirrorKit v1 — 设计规范 (Cask Noir · Prism)</title>
+<style>
+  :root {
+    --bg: #0A0A0F;
+    --surface: #12121A;
+    --surface-alt: #18182A;
+    --border: #1E1E2A;
+    --border-hover: #2A2A3E;
+    --text-primary: #E8E8ED;
+    --text-secondary: #88889A;
+    --text-tertiary: #5A5A6E;
+    --accent: #00F0FF;
+    --accent-dim: rgba(0, 240, 255, 0.12);
+    --accent-glow: rgba(0, 240, 255, 0.25);
+    --accent-warm: #FFB800;
+    --accent-warm-dim: rgba(255, 184, 0, 0.12);
+    --success: #34D399;
+    --warning: #FBBF24;
+    --error: #F87171;
+    --gradient-fast: linear-gradient(90deg, #00F0FF, #007AFF);
+    --gradient-slow: linear-gradient(90deg, #007AFF, #F87171);
+  }
+  .light-mode {
+    --bg: #F5F5F7;
+    --surface: #FFFFFF;
+    --surface-alt: #EBEBF0;
+    --border: #D1D1DB;
+    --border-hover: #B8B8C8;
+    --text-primary: #1A1A2E;
+    --text-secondary: #6B6B80;
+    --text-tertiary: #9A9AB0;
+    --accent: #0066FF;
+    --accent-dim: rgba(0, 102, 255, 0.10);
+    --accent-glow: rgba(0, 102, 255, 0.18);
+    --accent-warm: #D97706;
+    --accent-warm-dim: rgba(217, 119, 6, 0.10);
+    --success: #10B981;
+    --warning: #D97706;
+    --error: #DC2626;
+    --gradient-fast: linear-gradient(90deg, #0066FF, #3B82F6);
+    --gradient-slow: linear-gradient(90deg, #3B82F6, #DC2626);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, "SF Pro Text", "PingFang SC", "Helvetica Neue", sans-serif;
+    background: var(--bg);
+    color: var(--text-primary);
+    line-height: 1.7;
+    padding: 0;
+    -webkit-font-smoothing: antialiased;
+    transition: background 0.3s ease, color 0.3s ease;
+  }
+  .container { max-width: 960px; margin: 0 auto; padding: 48px 24px 80px; }
+
+  header {
+    padding: 48px 0 36px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 48px;
+  }
+  header h1 {
+    font-size: 32px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: var(--accent);
+    margin-bottom: 8px;
+  }
+  header .subtitle {
+    font-size: 16px;
+    color: var(--text-secondary);
+  }
+  header .meta {
+    margin-top: 16px;
+    font-size: 13px;
+    color: var(--text-secondary);
+    display: flex;
+    gap: 24px;
+    flex-wrap: wrap;
+  }
+  header .meta .tag {
+    display: inline-block;
+    background: var(--accent-dim);
+    color: var(--accent);
+    font-size: 11px;
+    font-weight: 600;
+    padding: 2px 10px;
+    border-radius: 4px;
+  }
+
+  /* Toggle */
+  .mode-toggle {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 36px;
+    padding: 4px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    width: fit-content;
+  }
+  .mode-toggle button {
+    all: unset;
+    padding: 8px 20px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    color: var(--text-secondary);
+    transition: all 0.2s;
+  }
+  .mode-toggle button.active {
+    background: var(--accent-dim);
+    color: var(--accent);
+  }
+  .mode-toggle button:not(.active):hover {
+    color: var(--text-primary);
+  }
+
+  section { margin-bottom: 48px; }
+  section h2 {
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--accent);
+    margin-bottom: 20px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  section h2 .num {
+    font-size: 13px;
+    color: var(--text-secondary);
+    font-weight: 400;
+    margin-right: 4px;
+  }
+  section h3 {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 28px 0 12px;
+  }
+  section h4 {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 20px 0 8px;
+  }
+  section h5 {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    margin: 16px 0 6px;
+  }
+  section p { margin-bottom: 14px; color: var(--text-secondary); font-size: 14px; }
+  section ul, section ol { margin: 12px 0 18px 20px; }
+  section li { margin-bottom: 8px; color: var(--text-secondary); font-size: 14px; }
+  section li strong { color: var(--text-primary); }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 16px 0 24px;
+    font-size: 13px;
+  }
+  th, td {
+    padding: 10px 14px;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+  }
+  th {
+    background: var(--surface);
+    color: var(--accent);
+    font-weight: 600;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+  }
+  td { color: var(--text-secondary); }
+  tr:hover td { background: rgba(255,255,255,0.02); }
+
+  .card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 16px;
+    margin: 16px 0 24px;
+  }
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 20px;
+  }
+  .card h4 { margin: 0 0 8px; font-size: 14px; }
+  .card p { margin: 0; font-size: 13px; }
+
+  .callout {
+    background: var(--surface);
+    border-left: 3px solid var(--accent);
+    padding: 16px 20px;
+    margin: 16px 0 24px;
+    border-radius: 0 6px 6px 0;
+    font-size: 14px;
+    color: var(--text-secondary);
+  }
+  .callout strong { color: var(--text-primary); }
+  .callout.warning { border-left-color: var(--warning); }
+  .callout.error { border-left-color: var(--error); }
+  .callout.success { border-left-color: var(--success); }
+  .callout.info { border-left-color: var(--accent); }
+
+  pre {
+    background: var(--surface);
+    padding: 16px;
+    border-radius: 6px;
+    font-size: 13px;
+    line-height: 1.6;
+    overflow-x: auto;
+    color: var(--text-secondary);
+    border: 1px solid var(--border);
+    font-family: 'SF Mono', 'Menlo', monospace;
+  }
+  code {
+    background: var(--surface-alt);
+    color: var(--accent);
+    font-family: 'SF Mono', 'Menlo', monospace;
+    font-size: 13px;
+    padding: 2px 6px;
+    border-radius: 3px;
+  }
+  pre code {
+    background: none;
+    color: var(--text-secondary);
+    padding: 0;
+    border-radius: 0;
+  }
+
+  .swatch-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 12px;
+    margin: 16px 0 24px;
+  }
+  .swatch {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  .swatch .preview {
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-family: 'SF Mono', 'Menlo', monospace;
+    font-weight: 600;
+    transition: background 0.3s;
+  }
+  .swatch .info {
+    padding: 10px 14px;
+  }
+  .swatch .info .name { font-size: 13px; font-weight: 600; color: var(--text-primary); }
+  .swatch .info .value { font-size: 11px; color: var(--text-secondary); font-family: 'SF Mono', 'Menlo', monospace; }
+
+  .swatch-group {
+    display: flex;
+    gap: 16px;
+    margin: 16px 0 24px;
+  }
+  .swatch-group .mode-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 8px;
+  }
+  .swatch-group .swatch-grid {
+    flex: 1;
+    margin: 0;
+  }
+
+  hr { border: none; border-top: 1px solid var(--border); margin: 36px 0; }
+
+  @media (max-width: 600px) {
+    .container { padding: 24px 16px 60px; }
+    header h1 { font-size: 26px; }
+    .card-grid { grid-template-columns: 1fr; }
+    .swatch-grid { grid-template-columns: 1fr 1fr; }
+    .swatch-group { flex-direction: column; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+<header>
+  <h1>Cask Noir · Prism</h1>
+  <div class="subtitle">MirrorKit v1 设计规范 — 冷冽精密的光学感设计语言 · 双模式</div>
+  <div class="meta">
+    <span>📅 2026-05-27</span>
+    <span>📌 版本：v2.0</span>
+    <span class="tag">Design System</span>
+  </div>
+</header>
+
+<div class="mode-toggle" id="modeToggle">
+  <button class="active" data-mode="dark">🌙 暗色模式</button>
+  <button data-mode="light">☀️ 亮色模式</button>
+</div>
+
+<script>
+document.getElementById('modeToggle').addEventListener('click', function(e) {
+  const btn = e.target.closest('button');
+  if (!btn) return;
+  document.querySelectorAll('#modeToggle button').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.body.classList.toggle('light-mode', btn.dataset.mode === 'light');
+});
+</script>
+
+<!-- 1. 设计理念 -->
+<section>
+  <h2><span class="num">01</span> 设计理念</h2>
+  <p><strong>Prism（棱镜）</strong> 是 Cask Noir 体系下为 MirrorKit 建立的子语言。以光学仪器为意象，传达精密、冷静、透明的产品气质——正如棱镜将光线分解为色谱，MirrorKit 将纷乱的网络配置解析为清晰的管控视图。</p>
+
+  <div class="callout">
+    <strong>核心关键词：</strong>精密 · 冷冽 · 透明 · 光学 · 秩序
+  </div>
+
+  <ul>
+    <li><strong>精密：</strong> 每一个像素、间距、色彩都有精确的数值依据，不做模糊的设计决策</li>
+    <li><strong>冷冽：</strong> 暗色模式以深色底色 + 冷光青为主调；亮色模式以冷白底色 + 深蓝为主调。始终传递理性、专业、高效的情绪</li>
+    <li><strong>透明：</strong> 界面层级通过边框而非阴影表达，所有元素清晰可辨</li>
+    <li><strong>光学：</strong> 动效灵感来源于光的折射、反射和色散，非机械式的位移/淡入淡出</li>
+    <li><strong>秩序：</strong> 信息层级严格遵循网格系统，数据展示对齐精准</li>
+  </ul>
+
+  <h3>模式切换策略</h3>
+  <ul>
+    <li>跟随系统设置（<code>@Environment(\.colorScheme)</code>），用户也可在设置面板中手动覆盖</li>
+    <li>所有色彩值通过 CSS 自定义属性 / SwiftUI <code>Environment</code> 的 token 系统管理，一处定义全局生效</li>
+    <li>切换时过渡动画 300ms ease，避免突兀闪烁</li>
+    <li>强调色在两种模式下分别做对比度优化：暗色用冷光青 #00F0FF，亮色用深蓝 #0066FF，均满足 WCAG AA 标准</li>
+  </ul>
+</section>
+
+<!-- 2. 色彩体系 -->
+<section>
+  <h2><span class="num">02</span> 色彩体系</h2>
+
+  <h3>2.1 暗色模式（默认）</h3>
+  <div class="swatch-grid">
+    <div class="swatch">
+      <div class="preview" style="background: #0A0A0F; color: #88889A; border-bottom: 1px solid #1E1E2A;">⬤</div>
+      <div class="info"><div class="name">Background</div><div class="value">#0A0A0F</div></div>
+    </div>
+    <div class="swatch">
+      <div class="preview" style="background: #12121A; color: #88889A; border-bottom: 1px solid #1E1E2A;">⬤</div>
+      <div class="info"><div class="name">Surface</div><div class="value">#12121A</div></div>
+    </div>
+    <div class="swatch">
+      <div class="preview" style="background: #18182A; color: #88889A; border-bottom: 1px solid #1E1E2A;">⬤</div>
+      <div class="info"><div class="name">Surface Alt</div><div class="value">#18182A</div></div>
+    </div>
+    <div class="swatch">
+      <div class="preview" style="background: #1E1E2A; color: #88889A; border-bottom: 1px solid #1E1E2A;">⬤</div>
+      <div class="info"><div class="name">Border</div><div class="value">#1E1E2A</div></div>
+    </div>
+    <div class="swatch">
+      <div class="preview" style="background: #2A2A3E; color: #88889A; border-bottom: 1px solid #1E1E2A;">⬤</div>
+      <div class="info"><div class="name">Border Hover</div><div class="value">#2A2A3E</div></div>
+    </div>
+    <div class="swatch">
+      <div class="preview" style="background: #E8E8ED; color: #0A0A0F;">Aa</div>
+      <div class="info"><div class="name">Text Primary</div><div class="value">#E8E8ED</div></div>
+    </div>
+    <div class="swatch">
+      <div class="preview" style="background: #88889A; color: #0A0A0F;">Aa</div>
+      <div class="info"><div class="name">Text Secondary</div><div class="value">#88889A</div></div>
+    </div>
+    <div class="swatch">
+      <div class="preview" style="background: #5A5A6E; color: #0A0A0F;">Aa</div>
+      <div class="info"><div class="name">Text Tertiary</div><div class="value">#5A5A6E</div></div>
+    </div>
+    <div class="swatch">
+      <div class="preview" style="background: #00F0FF; color: #0A0A0F;">冷光青</div>
+      <div class="info"><div class="name">Accent</div><div class="value">#00F0FF</div></div>
+    </div>
+    <div class="swatch">
+      <div class="preview" style="background: rgba(0, 240, 255, 0.12); color: #00F0FF; border-bottom: 1px solid #1E1E2A;">⬤</div>
+      <div class="info"><div class="name">Accent Dim</div><div class="value">rgba(0,240,255,0.12)</div></div>
+    </div>
+    <div class="swatch">
+      <div class="preview" style="background: #FFB800; color: #0A0A0F;">琥珀金</div>
+      <div class="info"><div class="name">Accent Warm</div><div class="value">#FFB800</div></div>
+    </div>
+    <div class="swatch">
+      <div class="preview" style="background: #34D399; color: #0A0A0F;">成功</div>
+      <div class="info"><div class="name">Success</div><div class="value">#34D399</div></div>
+    </div>
+    <div class="swatch">
+      <div class="preview" style="background: #FBBF24; color: #0A0A0F;">警告</div>
+      <div class="info"><div class="name">Warning</div><div class="value">#FBBF24</div></div>
+    </div>
+    <div class="swatch">
+      <div class="preview" style="background: #F87171; color: #0A0A0F;">错误</div>
+      <div class="info"><div class="name">Error</div><div class="value">#F87171</div></div>
+    </div>
+  </div>
+
+  <h3>2.2 亮色模式</h3>
+  <div class="swatch-grid">
+    <div class="swatch">
+      <div class="preview" style="background: #F5F5F7; color: #6B6B80; border-bottom: 1px solid #D1D1DB;">⬤</div>
+      <div class="info"><div class="name">Background</div><div class="value">#F5F5F7</div></div>
+    </div>
+    <div class="swatch">
+      <div class="preview" style="background: #FFFFFF; color: #6B6B80; border-bottom: 1px solid #D1D1DB;">⬤</div>
+      <div class="info"><div class="name">Surface</div><div class="value">#FFFFFF</div></div>
+    </div>
+    <div class="swatch">
+      <div class="preview" style="background: #EBEBF0; color: #6B6B80; border-bottom: 1px solid #D1D1DB;">⬤</div>
+      <div class="info"><div class="name">Surface Alt</div><div class="value">#EBEBF0</div></div>
+    </div>
+    <div class="swatch">
+      <div class="preview" style="background: #D1D1DB; color: #6B6B80; border-bottom: 1px solid #D1D1DB;">⬤</div>
+      <div class="info"><div class="name">Border</div><div class="value">#D1D1DB</div></div>
+    </div>
+    <div class="swatch">
+      <div class="preview" style="background: #B8B8C8; color: #6B6B80; border-bottom: 1px solid #D1D1DB;">⬤</div>
+      <div class="info"><div class="name">Border Hover</div><div class="value">#B8B8C8</div></div>
+    </div>
+    <div class="swatch">
+      <div class="preview" style="background: #1A1A2E; color: #FFF;">Aa</div>
+      <div class="info"><div class="name">Text Primary</div><div class="value">#1A1A2E</div></div>
+    </div>
+    <div class="swatch">
+      <div class="preview" style="background: #6B6B80; color: #FFF;">Aa</div>
+      <div class="info"><div class="name">Text Secondary</div><div class="value">#6B6B80</div></div>
+    </div>
+    <div class="swatch">
+      <div class="preview" style="background: #9A9AB0; color: #FFF;">Aa</div>
+      <div class="info"><div class="name">Text Tertiary</div><div class="value">#9A9AB0</div></div>
+    </div>
+    <div class="swatch">
+      <div class="preview" style="background: #0066FF; color: #FFF;">深蓝</div>
+      <div class="info"><div class="name">Accent</div><div class="value">#0066FF</div></div>
+    </div>
+    <div class="swatch">
+      <div class="preview" style="background: rgba(0, 102, 255, 0.10); color: #0066FF; border-bottom: 1px solid #D1D1DB;">⬤</div>
+      <div class="info"><div class="name">Accent Dim</div><div class="value">rgba(0,102,255,0.10)</div></div>
+    </div>
+    <div class="swatch">
+      <div class="preview" style="background: #D97706; color: #FFF;">琥珀</div>
+      <div class="info"><div class="name">Accent Warm</div><div class="value">#D97706</div></div>
+    </div>
+    <div class="swatch">
+      <div class="preview" style="background: #10B981; color: #FFF;">成功</div>
+      <div class="info"><div class="name">Success</div><div class="value">#10B981</div></div>
+    </div>
+    <div class="swatch">
+      <div class="preview" style="background: #D97706; color: #FFF;">警告</div>
+      <div class="info"><div class="name">Warning</div><div class="value">#D97706</div></div>
+    </div>
+    <div class="swatch">
+      <div class="preview" style="background: #DC2626; color: #FFF;">错误</div>
+      <div class="info"><div class="name">Error</div><div class="value">#DC2626</div></div>
+    </div>
+  </div>
+
+  <h3>2.3 两模式对照</h3>
+  <table>
+    <tr><th>Token</th><th>暗色模式</th><th>亮色模式</th></tr>
+    <tr><td>Background</td><td><code>#0A0A0F</code></td><td><code>#F5F5F7</code></td></tr>
+    <tr><td>Surface</td><td><code>#12121A</code></td><td><code>#FFFFFF</code></td></tr>
+    <tr><td>Surface Alt</td><td><code>#18182A</code></td><td><code>#EBEBF0</code></td></tr>
+    <tr><td>Border</td><td><code>#1E1E2A</code></td><td><code>#D1D1DB</code></td></tr>
+    <tr><td>Border Hover</td><td><code>#2A2A3E</code></td><td><code>#B8B8C8</code></td></tr>
+    <tr><td>Text Primary</td><td><code>#E8E8ED</code></td><td><code>#1A1A2E</code></td></tr>
+    <tr><td>Text Secondary</td><td><code>#88889A</code></td><td><code>#6B6B80</code></td></tr>
+    <tr><td>Text Tertiary</td><td><code>#5A5A6E</code></td><td><code>#9A9AB0</code></td></tr>
+    <tr><td><strong>Accent</strong></td><td><strong>#00F0FF</strong> 冷光青</td><td><strong>#0066FF</strong> 深蓝</td></tr>
+    <tr><td>Accent Dim</td><td><code>rgba(0,240,255,0.12)</code></td><td><code>rgba(0,102,255,0.10)</code></td></tr>
+    <tr><td>Accent Warm</td><td><code>#FFB800</code></td><td><code>#D97706</code></td></tr>
+    <tr><td>Success</td><td><code>#34D399</code></td><td><code>#10B981</code></td></tr>
+    <tr><td>Warning</td><td><code>#FBBF24</code></td><td><code>#D97706</code></td></tr>
+    <tr><td>Error</td><td><code>#F87171</code></td><td><code>#DC2626</code></td></tr>
+  </table>
+
+  <h3>2.4 强调色切换逻辑</h3>
+  <p>两模式使用不同的主强调色，这是 Prism 设计系统的关键决策：</p>
+  <ul>
+    <li><strong>暗色模式（冷光青 #00F0FF）：</strong> 在深色底色上发光感强，传递科技感和冷静气质。与深色背景的对比度 ≥ 7:1</li>
+    <li><strong>亮色模式（深蓝 #0066FF）：</strong> 在浅色底色上清晰醒目，传递专业和可靠感。与浅色背景的对比度 ≥ 7:1</li>
+    <li>两种强调色在视觉上保持一致的"冷色调"家族属性，确保品牌延续性</li>
+    <li>辅强调色（Accent Warm）在亮色模式下从琥珀金 #FFB800 调整为深琥珀 #D97706，以保证在浅色背景上的可读性</li>
+  </ul>
+</section>
+
+<!-- 3. 排版 -->
+<section>
+  <h2><span class="num">03</span> 排版</h2>
+
+  <p>排版规范在两种模式下完全一致，不变：</p>
+
+  <table>
+    <tr><th>Token</th><th>字重</th><th>字号</th><th>行高</th><th>字距</th><th>用途</th></tr>
+    <tr><td><code>.title</code></td><td>Bold (700)</td><td>16px</td><td>1.3</td><td>0</td><td>卡片标题、区域标题</td></tr>
+    <tr><td><code>.body</code></td><td>Regular (400)</td><td>13px</td><td>1.5</td><td>0</td><td>正文、列表项、标签文字</td></tr>
+    <tr><td><code>.caption</code></td><td>Regular (400)</td><td>11px</td><td>1.4</td><td>0</td><td>辅助文字、时间戳、状态标签</td></tr>
+    <tr><td><code>.mono</code></td><td>Regular (400)</td><td>13px</td><td>1.5</td><td>0</td><td>代码块、日志、数据面板</td></tr>
+    <tr><td><code>.mono-small</code></td><td>Regular (400)</td><td>11px</td><td>1.4</td><td>0</td><td>小号等宽数字、统计数据</td></tr>
+  </table>
+
+  <ul>
+    <li><strong>界面字体：</strong> SF Pro Text（英文）、PingFang SC（中文）</li>
+    <li><strong>等宽字体：</strong> SF Mono、Menlo（fallback）</li>
+    <li><strong>中英文混排：</strong> 英文和数字两侧各加 1 像素间距（通过 <code>tracking</code> modifier）</li>
+    <li><strong>行高：</strong> 列表和卡片内保持紧凑的 1.4-1.5 倍行高，长文阅读场景用 1.7 倍</li>
+  </ul>
+</section>
+
+<!-- 4. 间距与布局 -->
+<section>
+  <h2><span class="num">04</span> 间距与布局</h2>
+
+  <p>间距系统采用 4px 基准单位，所有间距值均为 4 的倍数，两模式一致：</p>
+
+  <table>
+    <tr><th>Token</th><th>值</th><th>用途</th></tr>
+    <tr><td><code>.space-xxs</code></td><td>4px</td><td>图标与相邻文字间距、标签内边距</td></tr>
+    <tr><td><code>.space-xs</code></td><td>8px</td><td>列表项内元素间距、卡片内容间距</td></tr>
+    <tr><td><code>.space-sm</code></td><td>12px</td><td>区域内元素间距、表格单元格内边距</td></tr>
+    <tr><td><code>.space-md</code></td><td>16px</td><td>卡片内边距、相邻组件间距</td></tr>
+    <tr><td><code>.space-lg</code></td><td>24px</td><td>区域边距、section 间距</td></tr>
+    <tr><td><code>.space-xl</code></td><td>32px</td><td>大区块间距、弹窗内边距</td></tr>
+    <tr><td><code>.space-2xl</code></td><td>48px</td><td>页面级 section 间距</td></tr>
+  </table>
+
+  <h4>网格系统</h4>
+  <ul>
+    <li>侧边栏宽度：180px（折叠） / 200px（展开）</li>
+    <li>主内容区：自适应，最小 480px</li>
+    <li>卡片网格：<code>repeat(auto-fill, minmax(240px, 1fr))</code>，gap 16px</li>
+    <li>列表项高度：36px（紧凑）/ 44px（默认）</li>
+  </ul>
+</section>
+
+<!-- 5. 边框与层级 -->
+<section>
+  <h2><span class="num">05</span> 边框与层级</h2>
+
+  <p><strong>边框即层级，不使用阴影。</strong>通过边框的亮度差异区分元素的深度和交互状态。两模式均遵循此原则，仅颜色值不同：</p>
+
+  <table>
+    <tr><th>层级</th><th>暗色模式</th><th>亮色模式</th></tr>
+    <tr><td>默认</td><td><code>1px solid #1E1E2A</code></td><td><code>1px solid #D1D1DB</code></td></tr>
+    <tr><td>悬停</td><td><code>1px solid #2A2A3E</code></td><td><code>1px solid #B8B8C8</code></td></tr>
+    <tr><td>选中</td><td><code>1px solid #00F0FF</code> + 内发光</td><td><code>1px solid #0066FF</code> + 内发光</td></tr>
+    <tr><td>行分割线</td><td><code>1px solid #1E1E2A</code></td><td><code>1px solid #D1D1DB</code></td></tr>
+  </table>
+
+  <div class="callout">
+    <strong>为什么不用阴影？</strong>阴影在暗色模式下难以感知且增加视觉噪点，在亮色模式下容易显得杂乱。用边框亮度区分层级更加清晰、可控，且符合"精密"的设计语言，两模式体验一致。
+  </div>
+</section>
+
+<!-- 6. 组件规范 -->
+<section>
+  <h2><span class="num">06</span> 组件规范</h2>
+
+  <h3>6.1 按钮</h3>
+  <table>
+    <tr><th>类型</th><th>暗色模式</th><th>亮色模式</th><th>字号</th><th>内边距</th><th>圆角</th></tr>
+    <tr><td>主按钮</td><td>背景 #00F0FF，文字 #0A0A0F</td><td>背景 #0066FF，文字 #FFF</td><td>13px Bold</td><td>8px 16px</td><td>6px</td></tr>
+    <tr><td>次按钮</td><td>边框 #1E1E2A，文字 #E8E8ED</td><td>边框 #D1D1DB，文字 #1A1A2E</td><td>13px Medium</td><td>8px 16px</td><td>6px</td></tr>
+    <tr><td>文字按钮</td><td>无边框，文字 #00F0FF</td><td>无边框，文字 #0066FF</td><td>13px Medium</td><td>6px 8px</td><td>4px</td></tr>
+    <tr><td>图标按钮</td><td>图标色 #88889A</td><td>图标色 #6B6B80</td><td>16px icon</td><td>6px</td><td>4px</td></tr>
+  </table>
+  <p>交互反馈两模式一致：悬停亮度 90%，点击缩放 0.97，transition 150ms。</p>
+
+  <h3>6.2 测速条 (LatencyBar)</h3>
+  <ul>
+    <li>高度：8px，圆角：4px</li>
+    <li>背景：暗色 <code>#1E1E2A</code> / 亮色 <code>#D1D1DB</code></li>
+    <li>填充：两模式均按延迟水平渐变（低延迟 → 中延迟 → 高延迟）</li>
+    <li>测速中动效：脉冲扫描波纹（雷达感），600ms ease-out</li>
+  </ul>
+
+  <h3>6.3 状态指示器 (StatusIndicator)</h3>
+  <p>两模式共用语义色，仅在使用 Surface 背景时微调透明度：</p>
+  <ul>
+    <li>🟢 正常：暗色 <code>#34D399</code> / 亮色 <code>#10B981</code></li>
+    <li>🟡 警告：暗色 <code>#FBBF24</code> / 亮色 <code>#D97706</code></li>
+    <li>🔴 错误：暗色 <code>#F87171</code> / 亮色 <code>#DC2626</code></li>
+    <li>⚪ 未知/未检测：暗色 <code>#5A5A6E</code> / 亮色 <code>#9A9AB0</code></li>
+    <li>测速中：脉冲动画（透明度 0.4 → 1.0 循环，周期 800ms）</li>
+  </ul>
+
+  <h3>6.4 卡片</h3>
+  <ul>
+    <li>边框圆角、内边距两模式一致（8px / 16px）</li>
+    <li>选中态外发光颜色随模式切换：暗色冷光青 → 亮色深蓝</li>
+  </ul>
+
+  <h3>6.5 列表行</h3>
+  <ul>
+    <li>高度、内边距两模式一致</li>
+    <li>选中态左侧竖条颜色随模式切换：暗色冷光青 → 亮色深蓝</li>
+  </ul>
+
+  <h3>6.6 状态栏</h3>
+  <ul>
+    <li>高度 28px，上边框分割，两模式一致</li>
+    <li>分隔符 <code>|</code>：暗色 <code>#3A3A4E</code> / 亮色 <code>#C8C8D4</code></li>
+  </ul>
+</section>
+
+<!-- 7. 动效规范 -->
+<section>
+  <h2><span class="num">07</span> 动效规范</h2>
+
+  <p>动效在两种模式下完全一致，不因模式不同而改变时序或曲线：</p>
+
+  <table>
+    <tr><th>触发</th><th>效果</th><th>持续时间</th><th>曲线</th></tr>
+    <tr><td>测速中</td><td>LatencyBar 从右至左脉冲波纹扫描（雷达感）</td><td>600ms</td><td>ease-out</td></tr>
+    <tr><td>切换成功</td><td>当前选中卡片镜面闪光（高光掠过）</td><td>400ms</td><td>ease-in-out</td></tr>
+    <tr><td>列表悬停</td><td>行背景过渡到 accentDim</td><td>150ms</td><td>ease-out</td></tr>
+    <tr><td>状态变更</td><td>StatusIndicator 颜色过渡</td><td>300ms</td><td>ease-in-out</td></tr>
+    <tr><td>面板切换</td><td>内容区域十字淡入（cross-fade）</td><td>200ms</td><td>ease-out</td></tr>
+    <tr><td>通知出现</td><td>从顶部滑入 + 轻微弹性</td><td>300ms</td><td>spring(damping: 0.8)</td></tr>
+    <tr><td>进度/下载</td><td>条状图填充从左到右推进</td><td>800ms</td><td>ease-out</td></tr>
+    <tr><td>模式切换</td><td>全局背景/文字/边框色过渡</td><td>300ms</td><td>ease</td></tr>
+  </table>
+
+  <h4>动效原则</h4>
+  <ol>
+    <li><strong>光学拟态：</strong> 动效灵感来源于光的物理行为，非机械式位移/淡入淡出</li>
+    <li><strong>克制：</strong> 动效持续时间 200ms-600ms，不干扰操作效率</li>
+    <li><strong>有意义：</strong> 每个动效都传递状态变化信息</li>
+    <li><strong>模式无感：</strong> 动效不因亮暗模式而改变，确保交互体验一致</li>
+  </ol>
+</section>
+
+<!-- 8. 图标规范 -->
+<section>
+  <h2><span class="num">08</span> 图标规范</h2>
+
+  <ul>
+    <li><strong>图标集：</strong> SF Symbols 6（Apple 原生图标库）</li>
+    <li><strong>尺寸：</strong> 16px（列表/行内）/ 20px（工具栏）/ 24px（空状态/大标题）</li>
+    <li><strong>字重：</strong> Regular（默认）/ Medium（选中/强调态）</li>
+    <li><strong>颜色：</strong> 默认 textSecondary，选中/强调 accent；颜色随模式自动切换</li>
+    <li><strong>层级符号：</strong> 侧边栏导航图标统一使用 16px Regular weight</li>
+    <li><strong>镜像源图标：</strong> 每个镜像源预设一个 SF Symbol + 20px 容器圆角 4px</li>
+  </ul>
+</section>
+
+<!-- 9. 暗色 / 亮色模式 -->
+<section>
+  <h2><span class="num">09</span> 双模式规范</h2>
+
+  <h3>9.1 模式切换触发</h3>
+  <ul>
+    <li><strong>默认：</strong> 跟随系统设置（通过 <code>@Environment(\.colorScheme)</code> 自动切换）</li>
+    <li><strong>手动覆盖：</strong> 设置面板中提供"亮色/暗色/跟随系统"三选项</li>
+    <li><strong>持久化：</strong> 用户选择存入 <code>UserDefaults</code>，下次启动时恢复</li>
+  </ul>
+
+  <h3>9.2 模式过渡动画</h3>
+  <ul>
+    <li>切换时所有色彩相关的属性（背景、文字、边框、强调色）做 <code>300ms ease</code> 过渡</li>
+    <li>利用 SwiftUI 的 <code>.animation</code> modifier 或 <code>withAnimation</code> 驱动，避免 <code>DispatchQueue</code> 手动控制</li>
+    <li>任何视图组件不可硬编码颜色字面量，必须通过设计 token 间接引用，以确保自动跟随模式切换</li>
+  </ul>
+
+  <h3>9.3 模式测试清单</h3>
+  <div class="card-grid">
+    <div class="card">
+      <h4>✅ 色彩</h4>
+      <p>所有 token 在两模式下都有对应值，没有遗漏；对比度 ≥ WCAG AA</p>
+    </div>
+    <div class="card">
+      <h4>✅ 图片/图标</h4>
+      <p>无硬编码深色背景的图片素材，使用 SF Symbols（自动适配）；如有自定义插图需提供 light/dark 两套</p>
+    </div>
+    <div class="card">
+      <h4>✅ 动效</h4>
+      <p>模式切换本身有 300ms 过渡；其他动效不依赖模式</p>
+    </div>
+    <div class="card">
+      <h4>✅ 截图/导出</h4>
+      <p>快照导出、日志导出等操作不应包含模式信息；如有截图功能需标注当前模式</p>
+    </div>
+  </div>
+</section>
+
+<!-- 10. 布局参考 -->
+<section>
+  <h2><span class="num">10</span> 布局参考</h2>
+
+  <pre>
+┌──────────────────────────────────────────────────────────┐
+│  ◈ MirrorKit                       当前: 清华  ⚙️ 设置   │
+├────────────┬─────────────────────────────────────────────┤
+│            │                                              │
+│  📊 仪表盘 │  ┌─ 当前镜片 ─────────────────────────────┐  │
+│  🔄 镜像源 │  │  清华大学 TUNA                    🟢 │  │
+│  📦 快照   │  │  延迟: 32ms  可用                      │  │
+│            │  │  状态: 已生效                           │  │
+│            │  └────────────────────────────────────────┘  │
+│            │                                              │
+│            ├─────────────────────────────────────────────┤
+│            │  镜像源列表                                   │
+│            │  ┌─────────────────────────────────────┐    │
+│            │  │ 🌐 官方源       45ms  ████████  ○   │    │
+│            │  │ 🏫 清华大学     32ms  ████████████ ●  │    │
+│            │  │ 🔬 中科大       48ms  ████████  ○   │    │
+│            │  │ ☁️  阿里云       67ms  ██████    ○   │    │
+│            │  │ 💧 腾讯云       89ms  ████      ○   │    │
+│            │  │ 🌩️ 华为云      112ms  ███       ○   │    │
+│            │  │ 🎓 南京大学     53ms  ███████   ○   │    │
+│            │  └─────────────────────────────────────┘    │
+│            │  [🔄 重新测速]  [⏹️ 切换到选中源]            │
+│            │                                              │
+│            ├─────────────────────────────────────────────┤
+│            │  操作日志                                     │
+│            │  ✅ 已切换到清华大学镜像源 (2026-05-27 10:30) │
+│            │  ℹ️ 环境变量已写入 ~/.zshrc                   │
+│            └─────────────────────────────────────────────┘
+├────────────┴─────────────────────────────────────────────┤
+│  ◈ 32ms │ 源: 清华 │ 已生效 │ v1.0.0                      │
+└──────────────────────────────────────────────────────────┘</pre>
+</section>
+
+<!-- 11. 设计 token 映射 -->
+<section>
+  <h2><span class="num">11</span> 设计 Token 映射</h2>
+
+  <p>以下为 Swift 代码中对应的设计 token 定义参考，通过 <code>Environment</code> 或 <code>@Environment(\.colorScheme)</code> 实现自动切换：</p>
+
+  <pre><code>// PrismColors.swift
+
+extension Color {
+    // Background
+    static let prismBackground    = Color("prismBackground")    // #0A0A0F / #F5F5F7
+    static let prismSurface       = Color("prismSurface")       // #12121A / #FFFFFF
+    static let prismSurfaceAlt    = Color("prismSurfaceAlt")    // #18182A / #EBEBF0
+
+    // Border
+    static let prismBorder        = Color("prismBorder")        // #1E1E2A / #D1D1DB
+    static let prismBorderHover   = Color("prismBorderHover")   // #2A2A3E / #B8B8C8
+
+    // Text
+    static let prismTextPrimary   = Color("prismTextPrimary")   // #E8E8ED / #1A1A2E
+    static let prismTextSecondary = Color("prismTextSecondary") // #88889A / #6B6B80
+    static let prismTextTertiary  = Color("prismTextTertiary")  // #5A5A6E / #9A9AB0
+
+    // Accent
+    static let prismAccent        = Color("prismAccent")        // #00F0FF / #0066FF
+    static let prismAccentDim     = Color("prismAccentDim")     // 12% / 10%
+    static let prismAccentWarm    = Color("prismAccentWarm")    // #FFB800 / #D97706
+
+    // Semantic
+    static let prismSuccess       = Color("prismSuccess")       // #34D399 / #10B981
+    static let prismWarning       = Color("prismWarning")       // #FBBF24 / #D97706
+    static let prismError         = Color("prismError")         // #F87171 / #DC2626
+}</code></pre>
+
+  <p>用 Asset Catalog 的 <code>Color Set</code> 管理双色值是最佳实践——Xcode 自动处理 light/dark 分派，代码中只需引用统一名称：</p>
+
+  <pre><code>// PrismColors.swift (alternative — using Asset Catalog)
+extension Color {
+    static let prismAccent = Color("AccentColor")
+    // 在 AccentColor.colorset 中分别设置 Any Appearance (light) = #0066FF,
+    // Dark Appearance = #00F0FF
+}</code></pre>
+
+  <pre><code>// PrismFonts.swift
+extension Font {
+    static let prismTitle       = Font.system(size: 16, weight: .bold)
+    static let prismBody        = Font.system(size: 13, weight: .regular)
+    static let prismCaption     = Font.system(size: 11, weight: .regular)
+    static let prismMono        = Font.system(size: 13, design: .monospaced)
+    static let prismMonoSmall   = Font.system(size: 11, design: .monospaced)
+    static let prismButton      = Font.system(size: 13, weight: .medium)
+}</code></pre>
+</section>
+
+<hr>
+
+<footer style="text-align: center; color: var(--text-secondary); font-size: 12px; opacity: 0.6;">
+  MirrorKit v1 设计规范 · Cask Noir · Prism · v2.0 · 2026-05-27
+</footer>
+
+</div>
+</body>
+</html>
