@@ -19,3 +19,6 @@ Packages/
 *.swp
 *.lock
 *~
+
+# Tooling
+.codegraph/
