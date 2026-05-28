@@ -38,11 +38,24 @@ struct ActiveBrewCard: View {
                             }
                             if let domain = mirror.bottleDomain {
                                 HStack(spacing: 4) {
-                                    Image(systemName: "link")
+                                    Image(systemName: "arrow.up.right.square")
                                         .font(.system(size: 10))
                                     Text(domain)
                                         .lineLimit(1)
                                         .truncationMode(.middle)
+                                }
+                                .foregroundColor(.prismAccent)
+                                .onTapGesture {
+                                    if let url = URL(string: domain) {
+                                        NSWorkspace.shared.open(url)
+                                    }
+                                }
+                                .onHover { isHovered in
+                                    if isHovered {
+                                        NSCursor.pointingHand.push()
+                                    } else {
+                                        NSCursor.pop()
+                                    }
                                 }
                             }
                         }
