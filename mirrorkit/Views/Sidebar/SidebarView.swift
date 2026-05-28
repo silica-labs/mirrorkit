@@ -13,6 +13,7 @@ struct SidebarView: View {
             bottomBar
         }
         .frame(width: 220)
+        .navigationSplitViewColumnWidth(min: 220, ideal: 220, max: 220)
         .background(Color.prismBackground)
     }
 
