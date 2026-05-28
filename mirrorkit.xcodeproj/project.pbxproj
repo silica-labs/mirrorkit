@@ -381,6 +381,8 @@
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SELECTED_FILES = readonly;
 				INFOPLIST_FILE = mirrorkit/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = MirrorKit;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.developer-tools";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
@@ -412,6 +414,8 @@
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SELECTED_FILES = readonly;
 				INFOPLIST_FILE = mirrorkit/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = MirrorKit;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.developer-tools";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",

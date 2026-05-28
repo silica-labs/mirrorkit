@@ -18,11 +18,12 @@ struct SidebarView: View {
 
     private var logoArea: some View {
         HStack(spacing: 10) {
-            Image(systemName: "wand.and.stars")
-                .font(.system(size: 20, weight: .medium))
-                .foregroundColor(.prismAccent)
+            Image("Logo")
+                .resizable()
+                .aspectRatio(contentMode: .fit)
+                .frame(height: 22)
             Text("MirrorKit")
-                .font(.system(size: 15, weight: .semibold))
+                .font(.system(size: 17, weight: .semibold))
                 .foregroundColor(.prismTextPrimary)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
