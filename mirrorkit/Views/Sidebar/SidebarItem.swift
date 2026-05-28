@@ -27,7 +27,7 @@ enum SidebarItem: String, Hashable, CaseIterable {
         case .brew: return "mug"
         case .github: return "chevron.left.forwardslash.chevron.right"
         case .nodejs: return "cube"
-        case .pypi: return "gear.badge.questionmark"
+        case .pypi: return "square.stack.3d.up"
         case .proxy: return "arrow.triangle.branch"
         case .diagnostics: return "stethoscope"
         }
