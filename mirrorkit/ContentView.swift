@@ -28,6 +28,8 @@ struct ContentView: View {
             GitHubMirrorView()
         case .nodejs:
             NodeMirrorView()
+        case .pypi:
+            PypiMirrorView()
         default:
             placeholder(for: selectedItem)
         }

@@ -6,10 +6,12 @@ struct DashboardView: View {
     @State private var brewVM = BrewMirrorVM()
     @State private var gitHubVM = GitHubMirrorVM()
     @State private var nodeVM = NodeMirrorVM()
+    @State private var pypiVM = PypiMirrorVM()
 
     @State private var brewLatency: TimeInterval?
     @State private var gitHubLatency: TimeInterval?
     @State private var nodeLatency: TimeInterval?
+    @State private var pypiLatency: TimeInterval?
     @State private var isMeasuring = false
     @State private var lastMeasured: Date?
 
@@ -18,6 +20,7 @@ struct DashboardView: View {
     private var activeBrew: BrewMirror { brewVM.activeMirror }
     private var activeGitHub: GitHubMirror { gitHubVM.activeMirror }
     private var activeNode: NodeMirror { nodeVM.activeMirror }
+    private var activePypi: PypiMirror { pypiVM.activeMirror }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -25,10 +28,11 @@ struct DashboardView: View {
             Divider().overlay(Color.prismBorder)
 
             ScrollView {
-                LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())], spacing: 16) {
+                LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())], spacing: 16) {
                     brewCard
                     gitHubCard
                     nodeCard
+                    pypiCard
                 }
                 .padding(20)
             }
@@ -97,6 +101,25 @@ struct DashboardView: View {
         )
     }
 
+    private var pypiCard: some View {
+        let mirror = activePypi
+        return DashboardMirrorCard(
+            icon: AnyView(mirror.iconImage(size: 24)),
+            title: "PyPI 镜像：\(mirror.name)",
+            status: mirror.isOfficial ? .warning : .success,
+            latency: pypiLatency,
+            isMeasuring: isMeasuring,
+            destination: .pypi,
+            configContent: AnyView(
+                VStack(alignment: .leading, spacing: 4) {
+                    configRow("index-url", mirror.mirrorURL ?? "（已清除）")
+                    configRow("trusted-host", mirror.trustedHost ?? "（无）")
+                }
+            ),
+            onNavigate: { selectedItem = $0 }
+        )
+    }
+
     private func configRow(_ label: String, _ value: String) -> some View {
         HStack(spacing: 8) {
             Text(label)
@@ -116,16 +139,19 @@ struct DashboardView: View {
         brewLatency = nil
         gitHubLatency = nil
         nodeLatency = nil
+        pypiLatency = nil
 
         Task {
             async let brew = measurer.measure(url: activeBrew.testURL)
             async let gitHub = measurer.measure(url: activeGitHub.testURL, timeoutInterval: 10)
             async let node = measurer.measure(url: activeNode.testURL, timeoutInterval: 10)
+            async let pypi = measurer.measure(url: activePypi.testURL, timeoutInterval: 10)
 
-            let (b, g, n) = await (brew, gitHub, node)
+            let (b, g, n, p) = await (brew, gitHub, node, pypi)
             brewLatency = b
             gitHubLatency = g
             nodeLatency = n
+            pypiLatency = p
             isMeasuring = false
             lastMeasured = Date()
         }
