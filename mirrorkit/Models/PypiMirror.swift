@@ -31,12 +31,21 @@ struct PypiMirror: Identifiable, Equatable {
             trustedHost: "mirrors.tuna.tsinghua.edu.cn"
         ),
         PypiMirror(
+            id: "ustc",
+            name: "中国科学技术大学",
+            systemImage: "building.columns",
+            mirrorURL: "https://mirrors.ustc.edu.cn/pypi/web/simple",
+            testURL: "https://mirrors.ustc.edu.cn",
+            isRecommended: true,
+            trustedHost: "mirrors.ustc.edu.cn"
+        ),
+        PypiMirror(
             id: "bfsu",
             name: "北京外国语大学",
             systemImage: "building.columns",
             mirrorURL: "https://mirrors.bfsu.edu.cn/pypi/web/simple",
             testURL: "https://mirrors.bfsu.edu.cn",
-            isRecommended: true,
+            isRecommended: false,
             trustedHost: "mirrors.bfsu.edu.cn"
         ),
         PypiMirror(
@@ -74,15 +83,6 @@ struct PypiMirror: Identifiable, Equatable {
             testURL: "https://mirrors.hust.edu.cn",
             isRecommended: false,
             trustedHost: "mirrors.hust.edu.cn"
-        ),
-        PypiMirror(
-            id: "ustc",
-            name: "中国科学技术大学",
-            systemImage: "building.columns",
-            mirrorURL: "https://mirrors.ustc.edu.cn/pypi/web/simple",
-            testURL: "https://mirrors.ustc.edu.cn",
-            isRecommended: true,
-            trustedHost: "mirrors.ustc.edu.cn"
         ),
         PypiMirror(
             id: "sustech",
