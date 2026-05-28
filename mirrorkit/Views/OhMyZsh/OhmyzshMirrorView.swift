@@ -7,6 +7,7 @@ struct OhmyzshMirrorView: View {
     @State private var bannerStyle: NotificationBanner.Style = .success
     @State private var bannerMessage = ""
     @State private var expandedLogIds: Set<UUID> = []
+    @State private var showHelp = false
 
     var body: some View {
         Group {
@@ -95,6 +96,33 @@ struct OhmyzshMirrorView: View {
             Text("Oh My Zsh 镜像设置")
                 .font(.prismTitle)
                 .foregroundColor(.prismTextPrimary)
+
+            Button(action: { showHelp = true }) {
+                Image(systemName: "questionmark.circle")
+                    .font(.system(size: 14))
+                    .foregroundColor(.prismTextTertiary)
+            }
+            .buttonStyle(.plain)
+            .popover(isPresented: $showHelp) {
+                VStack(alignment: .leading, spacing: 12) {
+                    Text("Oh My Zsh 的安装和更新需要通过 git 从 GitHub 下载完整仓库（约 200MB），国内网络环境下很容易因超时而失败。切换到国内镜像源后，git clone 和 omz update 将从镜像站拉取，速度更快更稳定。")
+                        .font(.prismBody)
+                        .foregroundColor(.prismTextPrimary)
+                        .fixedSize(horizontal: false, vertical: true)
+
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("• 切换只修改 ~/.oh-my-zsh 的 git remote 地址，不影响其他配置")
+                        Text("• 后续更新使用 omz update 或 git pull 即可享受加速")
+                        Text("• 随时可以切回官方源，无任何副作用")
+                    }
+                    .font(.prismCaption)
+                    .foregroundColor(.prismTextSecondary)
+                }
+                .padding(16)
+                .frame(width: 360)
+                .background(Color.prismSurface)
+            }
+
             Spacer()
             if let elapsed = vm.elapsedSinceLastMeasured {
                 Text("上次测速: \(elapsed)")
