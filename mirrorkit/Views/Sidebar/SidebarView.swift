@@ -12,7 +12,7 @@ struct SidebarView: View {
             Rectangle().fill(Color.prismBorder).frame(height: 1)
             bottomBar
         }
-        .frame(minWidth: 200, idealWidth: 220)
+        .frame(width: 220)
         .background(Color.prismBackground)
     }
 
