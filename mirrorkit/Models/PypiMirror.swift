@@ -22,6 +22,15 @@ struct PypiMirror: Identifiable, Equatable {
             trustedHost: nil
         ),
         PypiMirror(
+            id: "aliyun",
+            name: "阿里云",
+            systemImage: "cloud",
+            mirrorURL: "http://mirrors.aliyun.com/pypi/simple/",
+            testURL: "http://mirrors.aliyun.com",
+            isRecommended: true,
+            trustedHost: "mirrors.aliyun.com"
+        ),
+        PypiMirror(
             id: "tuna",
             name: "清华大学",
             systemImage: "building.columns",
