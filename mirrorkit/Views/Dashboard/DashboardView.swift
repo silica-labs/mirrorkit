@@ -15,7 +15,7 @@ struct DashboardView: View {
 
     private let measurer = LatencyMeasurer()
 
-    private var activeBrew: MirrorSource { brewVM.activeMirror }
+    private var activeBrew: BrewMirror { brewVM.activeMirror }
     private var activeGitHub: GitHubMirror { gitHubVM.activeMirror }
     private var activeNode: NodeMirror { nodeVM.activeMirror }
 

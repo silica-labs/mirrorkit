@@ -1,7 +1,7 @@
 import Foundation
 
-struct MirrorEnvironmentBuilder {
-    static func environmentVariables(mirror: MirrorSource) -> [String: String] {
+struct BrewMirrorEnvironmentBuilder {
+    static func environmentVariables(mirror: BrewMirror) -> [String: String] {
         var vars: [String: String] = [:]
         if let remote = mirror.brewGitRemote {
             vars["HOMEBREW_BREW_GIT_REMOTE"] = remote

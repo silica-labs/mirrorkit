@@ -16,13 +16,13 @@ struct BrewMirrorView: View {
 
             ScrollView {
                 VStack(spacing: 20) {
-                    ActiveMirrorCard(
+                    ActiveBrewCard(
                         mirror: vm.activeMirror,
                         latency: vm.latencyResults[vm.activeMirrorId],
                         isMeasuring: vm.isMeasuring
                     )
 
-                    MirrorListView(
+                    BrewMirrorListView(
                         mirrors: vm.mirrors,
                         latencyResults: vm.latencyResults,
                         activeMirrorId: vm.activeMirrorId,

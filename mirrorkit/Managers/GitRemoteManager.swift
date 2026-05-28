@@ -23,7 +23,7 @@ final class GitRemoteManager {
         self.executor = executor
     }
 
-    func setBrewRemote(_ source: MirrorSource) async throws {
+    func setBrewRemote(_ source: BrewMirror) async throws {
         let brewPath = try await brewRepositoryPath()
         if let remoteURL = source.brewGitRemote {
             let result = try await executor.run("git", arguments: ["-C", brewPath, "remote", "set-url", "origin", remoteURL])

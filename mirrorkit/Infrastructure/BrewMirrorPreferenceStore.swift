@@ -1,7 +1,7 @@
 import Foundation
 
-final class MirrorPreferenceStore {
-    static let shared = MirrorPreferenceStore()
+final class BrewMirrorPreferenceStore {
+    static let shared = BrewMirrorPreferenceStore()
 
     private let defaults = UserDefaults.standard
     private let keyMirror = "mirrorkit.selectedMirrorId"

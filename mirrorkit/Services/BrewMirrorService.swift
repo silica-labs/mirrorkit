@@ -1,19 +1,19 @@
 import Foundation
 
 @MainActor
-final class MirrorService {
-    static let shared = MirrorService()
+final class BrewMirrorService {
+    static let shared = BrewMirrorService()
 
     private let shellConfig = ShellConfigService()
     private let gitManager = GitRemoteManager()
-    private let prefs = MirrorPreferenceStore.shared
+    private let prefs = BrewMirrorPreferenceStore.shared
 
     var activeMirrorId: String {
-        get { prefs.selectedMirrorId ?? MirrorSource.allPresets.first(where: { !$0.isOfficial })?.id ?? "tsinghua" }
+        get { prefs.selectedMirrorId ?? BrewMirror.allPresets.first(where: { !$0.isOfficial })?.id ?? "tsinghua" }
         set { prefs.selectedMirrorId = newValue }
     }
 
-    func selectMirror(_ source: MirrorSource) async throws {
+    func selectMirror(_ source: BrewMirror) async throws {
         if source.isOfficial {
             try await resetToOfficial()
             return

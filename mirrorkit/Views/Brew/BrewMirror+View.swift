@@ -1,6 +1,6 @@
 import SwiftUI
 
-extension MirrorSource {
+extension BrewMirror {
     @ViewBuilder
     func iconImage(size: CGFloat) -> some View {
         Image(systemName: icon)

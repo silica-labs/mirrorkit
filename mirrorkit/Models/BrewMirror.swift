@@ -1,6 +1,6 @@
 import Foundation
 
-struct MirrorSource: Identifiable, Equatable, Codable {
+struct BrewMirror: Identifiable, Equatable, Codable {
     let id: String
     let name: String
     let icon: String
@@ -15,8 +15,8 @@ struct MirrorSource: Identifiable, Equatable, Codable {
         return "https://formulae.brew.sh"
     }
 
-    static let allPresets: [MirrorSource] = [
-        MirrorSource(
+    static let allPresets: [BrewMirror] = [
+        BrewMirror(
             id: "official",
             name: "官方源",
             icon: "globe",
@@ -24,7 +24,7 @@ struct MirrorSource: Identifiable, Equatable, Codable {
             bottleDomain: nil,
             apiDomain: nil
         ),
-        MirrorSource(
+        BrewMirror(
             id: "tsinghua",
             name: "清华大学 TUNA",
             icon: "graduationcap",
@@ -32,7 +32,7 @@ struct MirrorSource: Identifiable, Equatable, Codable {
             bottleDomain: "https://mirrors.tuna.tsinghua.edu.cn/homebrew-bottles",
             apiDomain: "https://mirrors.tuna.tsinghua.edu.cn/homebrew/api"
         ),
-        MirrorSource(
+        BrewMirror(
             id: "ustc",
             name: "中科大 USTC",
             icon: "building.columns",
@@ -40,7 +40,7 @@ struct MirrorSource: Identifiable, Equatable, Codable {
             bottleDomain: "https://mirrors.ustc.edu.cn/homebrew-bottles",
             apiDomain: "https://mirrors.ustc.edu.cn/homebrew/api"
         ),
-        MirrorSource(
+        BrewMirror(
             id: "aliyun",
             name: "阿里云",
             icon: "cloud",
@@ -48,7 +48,7 @@ struct MirrorSource: Identifiable, Equatable, Codable {
             bottleDomain: "https://mirrors.aliyun.com/homebrew/homebrew-bottles",
             apiDomain: "https://mirrors.aliyun.com/homebrew/api"
         ),
-        MirrorSource(
+        BrewMirror(
             id: "tencent",
             name: "腾讯云",
             icon: "cloud.fill",
@@ -56,7 +56,7 @@ struct MirrorSource: Identifiable, Equatable, Codable {
             bottleDomain: "https://mirrors.cloud.tencent.com/homebrew-bottles",
             apiDomain: "https://mirrors.cloud.tencent.com/homebrew/api"
         ),
-        MirrorSource(
+        BrewMirror(
             id: "nju",
             name: "南京大学",
             icon: "building.columns.fill",

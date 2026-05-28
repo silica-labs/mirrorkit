@@ -4,17 +4,17 @@ import Observation
 @MainActor
 @Observable
 final class BrewMirrorVM {
-    let mirrors = MirrorSource.allPresets
+    let mirrors = BrewMirror.allPresets
     var latencyResults: [String: TimeInterval] = [:]
     var isMeasuring = false
     var isSwitching = false
     var lastMeasured: Date?
     var logs: [LogEntry] = []
-    var pendingMirror: MirrorSource?
+    var pendingMirror: BrewMirror?
 
     var activeMirrorId: String
 
-    private let service = MirrorService.shared
+    private let service = BrewMirrorService.shared
     private let measurer = LatencyMeasurer()
 
     init() {
@@ -26,7 +26,7 @@ final class BrewMirrorVM {
         return (values.max() ?? 200) * 1.2
     }
 
-    var activeMirror: MirrorSource {
+    var activeMirror: BrewMirror {
         mirrors.first(where: { $0.id == activeMirrorId }) ?? mirrors[0]
     }
 
@@ -59,7 +59,7 @@ final class BrewMirrorVM {
         }
     }
 
-    func requestSwitch(to mirror: MirrorSource) {
+    func requestSwitch(to mirror: BrewMirror) {
         pendingMirror = mirror
     }
 
@@ -73,7 +73,7 @@ final class BrewMirrorVM {
         pendingMirror = nil
     }
 
-    private func performSwitch(to mirror: MirrorSource) {
+    private func performSwitch(to mirror: BrewMirror) {
         Task {
             isSwitching = true
             do {

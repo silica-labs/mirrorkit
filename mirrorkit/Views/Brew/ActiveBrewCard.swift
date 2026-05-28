@@ -1,7 +1,7 @@
 import SwiftUI
 
-struct ActiveMirrorCard: View {
-    let mirror: MirrorSource
+struct ActiveBrewCard: View {
+    let mirror: BrewMirror
     let latency: TimeInterval?
     let isMeasuring: Bool
 

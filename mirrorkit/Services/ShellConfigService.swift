@@ -4,9 +4,9 @@ final class ShellConfigService {
     private let markerStart = "# --- MirrorKit Managed ---"
     private let markerEnd = "# --- End MirrorKit ---"
 
-    func applyMirrorConfig(_ source: MirrorSource) async throws {
+    func applyMirrorConfig(_ source: BrewMirror) async throws {
         let path = try ShellProfileManager.shellProfilePath()
-        let envVars = MirrorEnvironmentBuilder.environmentVariables(mirror: source)
+        let envVars = BrewMirrorEnvironmentBuilder.environmentVariables(mirror: source)
         let block = buildBlock(envVars)
         try ShellProfileManager.writeBlock(block, to: path, markerStart: markerStart, markerEnd: markerEnd)
     }
