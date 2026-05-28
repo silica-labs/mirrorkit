@@ -41,6 +41,6 @@ struct SidebarSection: Identifiable {
 
     static let all: [SidebarSection] = [
         SidebarSection(id: "mirror", title: "镜像源", items: [.brew, .github, .nodejs, .pypi]),
-        SidebarSection(id: "network", title: "网络", items: [.proxy, .diagnostics]),
+        // SidebarSection(id: "network", title: "网络", items: [.proxy, .diagnostics]),
     ]
 }

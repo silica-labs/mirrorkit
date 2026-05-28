@@ -86,7 +86,7 @@ struct SidebarView: View {
         HStack(spacing: 4) {
             themeButton
             Spacer()
-            settingsButton
+            // settingsButton
         }
         .padding(.horizontal, 8)
         .padding(.vertical, 8)
@@ -102,10 +102,10 @@ struct SidebarView: View {
         .focusEffectDisabled()
     }
 
-    private var settingsButton: some View {
-        PrismButton(systemImage: "gearshape", style: .icon, action: {})
-            .focusEffectDisabled()
-    }
+    // private var settingsButton: some View {
+    //     PrismButton(systemImage: "gearshape", style: .icon, action: {})
+    //         .focusEffectDisabled()
+    // }
 }
 
 enum ColorSchemeOption: String, CaseIterable {
