@@ -75,28 +75,18 @@ struct PypiMirrorListView: View {
 
                     if let latency = latency, latency.isFinite {
                         LatencyBar(latency: latency, maxLatency: maxLatency, isMeasuring: isMeasuring)
-                            .frame(width: 80)
+                            .frame(width: 120)
                     } else if isUnreachable {
                         LatencyBar(latency: .infinity, maxLatency: maxLatency, isMeasuring: isMeasuring)
-                            .frame(width: 80)
+                            .frame(width: 120)
                     } else {
                         LatencyBar(latency: -1, maxLatency: maxLatency, isMeasuring: isMeasuring)
-                            .frame(width: 80)
+                            .frame(width: 120)
                     }
                 }
-                .frame(width: 140, alignment: .trailing)
+                .frame(width: 180, alignment: .trailing)
 
-                Spacer()
-
-                if isActive {
-                    Text("当前")
-                        .font(.prismCaption)
-                        .foregroundColor(.prismAccent)
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 2)
-                        .background(Color.prismAccent.opacity(0.1))
-                        .cornerRadius(4)
-                } else if isUnreachable {
+                if isUnreachable {
                     Text("无法访问")
                         .font(.prismCaption)
                         .foregroundColor(.prismError)
@@ -104,9 +94,7 @@ struct PypiMirrorListView: View {
                         .padding(.vertical, 2)
                         .background(Color.prismError.opacity(0.1))
                         .cornerRadius(4)
-                }
-
-                if mirror.isRecommended && !isActive {
+                } else if mirror.isRecommended {
                     Text("推荐")
                         .font(.prismCaption)
                         .foregroundColor(.prismSuccess)
@@ -115,6 +103,8 @@ struct PypiMirrorListView: View {
                         .background(Color.prismSuccess.opacity(0.1))
                         .cornerRadius(4)
                 }
+
+                Spacer()
             }
             .padding(.horizontal, 16)
             .padding(.vertical, 12)
