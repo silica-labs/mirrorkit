@@ -9,7 +9,6 @@ struct SidebarView: View {
             logoArea
             Rectangle().fill(Color.prismBorder).frame(height: 1)
             menuList
-            Rectangle().fill(Color.prismBorder).frame(height: 1)
             bottomBar
         }
         .frame(width: 220)
@@ -85,12 +84,11 @@ struct SidebarView: View {
     private var bottomBar: some View {
         HStack(spacing: 4) {
             themeButton
-            Spacer()
+            // Spacer()
             // settingsButton
         }
         .padding(.horizontal, 8)
         .padding(.vertical, 8)
-        .background(Color.prismSurface)
     }
 
     private var themeButton: some View {
