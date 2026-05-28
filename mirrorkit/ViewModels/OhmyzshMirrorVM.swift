@@ -68,22 +68,13 @@ final class OhmyzshMirrorVM {
         Task {
             isSwitching = true
             do {
-                if mirror.isOfficial {
-                    try await service.resetToOfficial()
-                } else {
-                    try await service.applyMirror(mirror)
-                }
+                try await service.applyMirror(mirror)
                 activeMirrorId = mirror.id
 
-                let icon = mirror.isOfficial ? "globe" : "checkmark.circle"
-                let msg: String
-                if mirror.isOfficial {
-                    msg = "已恢复 Oh My Zsh 官方源"
-                } else {
-                    msg = "已切换到 \(mirror.name)"
-                }
-                let detail = "git remote origin: \(mirror.gitRemoteURL ?? "https://github.com/ohmyzsh/ohmyzsh.git")"
-                logs.insert(LogEntry(icon: icon, message: msg, detail: detail, timestamp: Date()), at: 0)
+                let isOfficial = mirror.id == "official"
+                let icon = isOfficial ? "globe" : "checkmark.circle"
+                let msg = isOfficial ? "已恢复 Oh My Zsh 官方源" : "已切换到 \(mirror.name)"
+                logs.insert(LogEntry(icon: icon, message: msg, detail: "git remote origin: \(mirror.gitRemoteURL)", timestamp: Date()), at: 0)
             } catch {
                 logs.insert(LogEntry(icon: "xmark.circle", message: "切换失败", detail: error.localizedDescription, timestamp: Date()), at: 0)
             }

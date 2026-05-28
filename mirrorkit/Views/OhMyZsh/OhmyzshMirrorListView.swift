@@ -28,7 +28,7 @@ struct OhmyzshMirrorListView: View {
     private func mirrorRow(_ mirror: OhmyzshMirror) -> some View {
         let isActive = mirror.id == activeMirrorId
         let latency = latencyResults[mirror.id]
-        let isUnreachable = !mirror.isOfficial && latency == .infinity
+        let isUnreachable = mirror.id != "official" && latency == .infinity
 
         return Button(action: {
             guard !isActive, !isUnreachable else { return }

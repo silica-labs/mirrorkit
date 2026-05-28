@@ -16,7 +16,7 @@ struct ActiveOhmyzshCard: View {
                             Text(mirror.name)
                                 .font(.prismTitle)
                                 .foregroundColor(.prismTextPrimary)
-                            StatusIndicator(status: mirror.isOfficial ? .warning : .success)
+                            StatusIndicator(status: mirror.id == "official" ? .warning : .success)
                             Text("已生效")
                                 .font(.prismCaption)
                                 .foregroundColor(.prismTextSecondary)
@@ -36,26 +36,24 @@ struct ActiveOhmyzshCard: View {
                                         .foregroundColor(.prismTextTertiary)
                                 }
                             }
-                            if let url = mirror.gitRemoteURL {
-                                HStack(spacing: 4) {
-                                    Text(url)
-                                        .lineLimit(1)
-                                        .truncationMode(.middle)
-                                    Image(systemName: "arrow.up.right.square")
-                                        .font(.system(size: 10))
+                            HStack(spacing: 4) {
+                                Text(mirror.gitRemoteURL)
+                                    .lineLimit(1)
+                                    .truncationMode(.middle)
+                                Image(systemName: "arrow.up.right.square")
+                                    .font(.system(size: 10))
+                            }
+                            .foregroundColor(.prismAccent)
+                            .onTapGesture {
+                                if let url = URL(string: mirror.gitRemoteURL) {
+                                    NSWorkspace.shared.open(url)
                                 }
-                                .foregroundColor(.prismAccent)
-                                .onTapGesture {
-                                    if let url = URL(string: url) {
-                                        NSWorkspace.shared.open(url)
-                                    }
-                                }
-                                .onHover { isHovered in
-                                    if isHovered {
-                                        NSCursor.pointingHand.push()
-                                    } else {
-                                        NSCursor.pop()
-                                    }
+                            }
+                            .onHover { isHovered in
+                                if isHovered {
+                                    NSCursor.pointingHand.push()
+                                } else {
+                                    NSCursor.pop()
                                 }
                             }
                         }
@@ -69,7 +67,7 @@ struct ActiveOhmyzshCard: View {
                 Divider().overlay(Color.prismBorder)
 
                 VStack(alignment: .leading, spacing: 6) {
-                    configRow(label: "git remote origin", value: mirror.gitRemoteURL ?? OhmyzshMirrorService.officialRemote)
+                    configRow(label: "git remote origin", value: mirror.gitRemoteURL)
                     configRow(label: "ZSH 路径", value: OhmyzshMirrorService.zshPath)
                 }
                 .font(.prismCaption)

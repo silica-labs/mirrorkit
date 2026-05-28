@@ -4,18 +4,16 @@ struct OhmyzshMirror: Identifiable, Equatable {
     let id: String
     let name: String
     let systemImage: String
-    let gitRemoteURL: String?
+    let gitRemoteURL: String
     let testURL: String
     let isRecommended: Bool
-
-    var isOfficial: Bool { gitRemoteURL == nil }
 
     static let allPresets: [OhmyzshMirror] = [
         OhmyzshMirror(
             id: "official",
             name: "官方源",
             systemImage: "globe",
-            gitRemoteURL: nil,
+            gitRemoteURL: "https://github.com/ohmyzsh/ohmyzsh.git",
             testURL: "https://github.com/ohmyzsh/ohmyzsh",
             isRecommended: false
         ),

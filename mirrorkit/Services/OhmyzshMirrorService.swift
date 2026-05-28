@@ -5,8 +5,6 @@ final class OhmyzshMirrorService {
     private let defaults = UserDefaults.standard
     private let activeIdKey = "mirrorkit.ohmyzshMirrorId"
 
-    static let officialRemote = "https://github.com/ohmyzsh/ohmyzsh.git"
-
     static var zshPath: String {
         ProcessInfo.processInfo.environment["ZSH"] ?? "\(NSHomeDirectory())/.oh-my-zsh"
     }
@@ -21,21 +19,11 @@ final class OhmyzshMirrorService {
     }
 
     func applyMirror(_ mirror: OhmyzshMirror) async throws {
-        let targetURL = mirror.gitRemoteURL ?? Self.officialRemote
         try await CommandExecutor().run(
             "git",
-            arguments: ["-C", Self.zshPath, "remote", "set-url", "origin", targetURL],
+            arguments: ["-C", Self.zshPath, "remote", "set-url", "origin", mirror.gitRemoteURL],
             timeout: .seconds(10)
         )
         activeMirrorId = mirror.id
-    }
-
-    func resetToOfficial() async throws {
-        try await CommandExecutor().run(
-            "git",
-            arguments: ["-C", Self.zshPath, "remote", "set-url", "origin", Self.officialRemote],
-            timeout: .seconds(10)
-        )
-        activeMirrorId = "official"
     }
 }
