@@ -38,11 +38,11 @@ struct ActiveBrewCard: View {
                             }
                             if let domain = mirror.bottleDomain {
                                 HStack(spacing: 4) {
-                                    Image(systemName: "arrow.up.right.square")
-                                        .font(.system(size: 10))
                                     Text(domain)
                                         .lineLimit(1)
                                         .truncationMode(.middle)
+                                    Image(systemName: "arrow.up.right.square")
+                                        .font(.system(size: 10))
                                 }
                                 .foregroundColor(.prismAccent)
                                 .onTapGesture {
