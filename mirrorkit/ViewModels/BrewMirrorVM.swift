@@ -90,7 +90,7 @@ final class BrewMirrorVM {
                 let detail = "Brew Git Remote: \(mirror.brewGitRemote ?? "https://github.com/Homebrew/brew.git")\nBOTTLE_DOMAIN: \(mirror.bottleDomain ?? "（默认）")\nAPI_DOMAIN: \(mirror.apiDomain ?? "（默认）")"
                 logs.insert(LogEntry(icon: icon, message: msg, detail: detail, timestamp: Date()), at: 0)
             } catch {
-                logs.insert(LogEntry(icon: "xmark.circle", message: "切换失败: \(error.localizedDescription)", timestamp: Date()), at: 0)
+                logs.insert(LogEntry(icon: "xmark.circle", message: "切换失败", detail: error.localizedDescription, timestamp: Date()), at: 0)
             }
             isSwitching = false
         }

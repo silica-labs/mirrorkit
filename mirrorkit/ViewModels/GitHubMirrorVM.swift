@@ -90,7 +90,7 @@ final class GitHubMirrorVM {
                 let detail = "insteadOf: url.\(mirror.mirrorURL ?? "（无）").insteadOf = https://github.com/"
                 logs.insert(LogEntry(icon: icon, message: msg, detail: detail, timestamp: Date()), at: 0)
             } catch {
-                logs.insert(LogEntry(icon: "xmark.circle", message: "切换失败: \(error.localizedDescription)", timestamp: Date()), at: 0)
+                logs.insert(LogEntry(icon: "xmark.circle", message: "切换失败", detail: error.localizedDescription, timestamp: Date()), at: 0)
             }
             isSwitching = false
         }

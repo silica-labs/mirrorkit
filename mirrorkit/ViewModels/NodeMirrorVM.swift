@@ -82,7 +82,7 @@ final class NodeMirrorVM {
                 let detail = "NVM_NODEJS_ORG_MIRROR: \(mirror.mirrorURL ?? "（已清除）")\nN_NODE_MIRROR: \(mirror.mirrorURL ?? "（已清除）")\nFNM_NODE_DIST_MIRROR: \(mirror.mirrorURL ?? "（已清除）")"
                 logs.insert(LogEntry(icon: icon, message: msg, detail: detail, timestamp: Date()), at: 0)
             } catch {
-                logs.insert(LogEntry(icon: "xmark.circle", message: "切换失败: \(error.localizedDescription)", timestamp: Date()), at: 0)
+                logs.insert(LogEntry(icon: "xmark.circle", message: "切换失败", detail: error.localizedDescription, timestamp: Date()), at: 0)
             }
             isSwitching = false
         }
