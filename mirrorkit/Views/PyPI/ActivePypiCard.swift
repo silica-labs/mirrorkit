@@ -43,6 +43,18 @@ struct ActivePypiCard: View {
                                     Text(url)
                                         .lineLimit(1)
                                         .truncationMode(.middle)
+                                        .onTapGesture {
+                                            if let url = URL(string: url) {
+                                                NSWorkspace.shared.open(url)
+                                            }
+                                        }
+                                        .onHover { isHovered in
+                                            if isHovered {
+                                                NSCursor.pointingHand.push()
+                                            } else {
+                                                NSCursor.pop()
+                                            }
+                                        }
                                 }
                             }
                         }
