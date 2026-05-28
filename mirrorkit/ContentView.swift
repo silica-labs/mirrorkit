@@ -24,6 +24,8 @@ struct ContentView: View {
             DashboardView(selectedItem: $selectedItem)
         case .brew:
             BrewMirrorView()
+        case .ohmyzsh:
+            OhmyzshMirrorView()
         case .github:
             GitHubMirrorView()
         case .nodejs:
