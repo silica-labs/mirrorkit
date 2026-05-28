@@ -119,8 +119,10 @@ struct PypiMirrorListView: View {
             .padding(.horizontal, 16)
             .padding(.vertical, 12)
             .background(isActive ? Color.prismAccentDim : Color.clear)
+            .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
+        .disabled(isUnreachable)
         .focusEffectDisabled()
     }
 }
