@@ -87,6 +87,7 @@ struct OperationLogView: View {
                     .transition(.opacity.combined(with: .move(edge: .top)))
             }
         }
+        .frame(maxWidth: .infinity)
     }
 
     private func logIconColor(_ icon: String) -> Color {

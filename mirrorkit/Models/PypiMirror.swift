@@ -23,8 +23,8 @@ struct PypiMirror: Identifiable, Equatable {
         ),
         PypiMirror(
             id: "tuna",
-            name: "清华大学 TUNA",
-            systemImage: "graduationcap",
+            name: "清华大学",
+            systemImage: "building.columns",
             mirrorURL: "https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple",
             testURL: "https://mirrors.tuna.tsinghua.edu.cn",
             isRecommended: true,
@@ -32,7 +32,7 @@ struct PypiMirror: Identifiable, Equatable {
         ),
         PypiMirror(
             id: "bfsu",
-            name: "北京外国语大学 BFSU",
+            name: "北京外国语大学",
             systemImage: "building.columns",
             mirrorURL: "https://mirrors.bfsu.edu.cn/pypi/web/simple",
             testURL: "https://mirrors.bfsu.edu.cn",
@@ -42,7 +42,7 @@ struct PypiMirror: Identifiable, Equatable {
         PypiMirror(
             id: "nju",
             name: "南京大学",
-            systemImage: "building.columns.fill",
+            systemImage: "building.columns",
             mirrorURL: "https://mirror.nju.edu.cn/pypi/web/simple",
             testURL: "https://mirror.nju.edu.cn",
             isRecommended: false,
@@ -51,7 +51,7 @@ struct PypiMirror: Identifiable, Equatable {
         PypiMirror(
             id: "pku",
             name: "北京大学",
-            systemImage: "building.columns.fill",
+            systemImage: "building.columns",
             mirrorURL: "https://mirrors.pku.edu.cn/pypi/web/simple",
             testURL: "https://mirrors.pku.edu.cn",
             isRecommended: false,
@@ -60,7 +60,7 @@ struct PypiMirror: Identifiable, Equatable {
         PypiMirror(
             id: "njtech",
             name: "南京工业大学",
-            systemImage: "building.columns.fill",
+            systemImage: "building.columns",
             mirrorURL: "https://mirrors.njtech.edu.cn/pypi/web/simple",
             testURL: "https://mirrors.njtech.edu.cn",
             isRecommended: false,
@@ -69,7 +69,7 @@ struct PypiMirror: Identifiable, Equatable {
         PypiMirror(
             id: "hust",
             name: "华中科技大学",
-            systemImage: "building.columns.fill",
+            systemImage: "building.columns",
             mirrorURL: "https://mirrors.hust.edu.cn/pypi/web/simple",
             testURL: "https://mirrors.hust.edu.cn",
             isRecommended: false,
@@ -77,7 +77,7 @@ struct PypiMirror: Identifiable, Equatable {
         ),
         PypiMirror(
             id: "ustc",
-            name: "中国科学技术大学 USTC",
+            name: "中国科学技术大学",
             systemImage: "building.columns",
             mirrorURL: "https://mirrors.ustc.edu.cn/pypi/web/simple",
             testURL: "https://mirrors.ustc.edu.cn",
@@ -87,7 +87,7 @@ struct PypiMirror: Identifiable, Equatable {
         PypiMirror(
             id: "sjtu",
             name: "SJTUG 思源",
-            systemImage: "building.columns.fill",
+            systemImage: "building.columns",
             mirrorURL: "https://mirror.sjtu.edu.cn/pypi/web/simple",
             testURL: "https://mirror.sjtu.edu.cn",
             isRecommended: false,
@@ -96,7 +96,7 @@ struct PypiMirror: Identifiable, Equatable {
         PypiMirror(
             id: "sustech",
             name: "南方科技大学",
-            systemImage: "building.columns.fill",
+            systemImage: "building.columns",
             mirrorURL: "https://mirrors.sustech.edu.cn/pypi/web/simple",
             testURL: "https://mirrors.sustech.edu.cn",
             isRecommended: false,
@@ -105,7 +105,7 @@ struct PypiMirror: Identifiable, Equatable {
         PypiMirror(
             id: "zju",
             name: "浙江大学",
-            systemImage: "building.columns.fill",
+            systemImage: "building.columns",
             mirrorURL: "https://mirrors.zju.edu.cn/pypi/web/simple",
             testURL: "https://mirrors.zju.edu.cn",
             isRecommended: false,
@@ -114,7 +114,7 @@ struct PypiMirror: Identifiable, Equatable {
         PypiMirror(
             id: "jlu",
             name: "吉林大学",
-            systemImage: "building.columns.fill",
+            systemImage: "building.columns",
             mirrorURL: "https://mirrors.jlu.edu.cn/pypi/web/simple",
             testURL: "https://mirrors.jlu.edu.cn",
             isRecommended: false,

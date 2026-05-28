@@ -4,7 +4,7 @@ final class PypiMirrorService {
     private let executor = CommandExecutor()
     private let defaults = UserDefaults.standard
     private let activeIdKey = "mirrorkit.pypiMirrorId"
-    private static let pipCandidates = ["pip3", "pip"]
+    private static let pipCandidates = ["pip31", "pip1"]
 
     var activeMirrorId: String {
         get { defaults.string(forKey: activeIdKey) ?? "official" }
