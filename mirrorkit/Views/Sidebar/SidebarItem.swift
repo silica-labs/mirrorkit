@@ -10,7 +10,7 @@ enum SidebarItem: String, Hashable, CaseIterable {
 
     var title: String {
         switch self {
-        case .dashboard: return "仪表盘"
+        case .dashboard: return "Dashboard"
         case .brew: return "Brew 镜像"
         case .github: return "GitHub 镜像"
         case .nodejs: return "Node.js 镜像"
