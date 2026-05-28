@@ -8,6 +8,7 @@ struct BrewMirrorView: View {
     @State private var bannerStyle: NotificationBanner.Style = .success
     @State private var bannerMessage = ""
     @State private var expandedLogIds: Set<UUID> = []
+    @State private var showHelp = false
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -85,6 +86,33 @@ struct BrewMirrorView: View {
             Text("Brew 镜像设置")
                 .font(.prismTitle)
                 .foregroundColor(.prismTextPrimary)
+
+            Button(action: { showHelp = true }) {
+                Image(systemName: "questionmark.circle")
+                    .font(.system(size: 14))
+                    .foregroundColor(.prismTextTertiary)
+            }
+            .buttonStyle(.plain)
+            .popover(isPresented: $showHelp) {
+                VStack(alignment: .leading, spacing: 12) {
+                    Text("Homebrew 的安装和更新需要从 GitHub 下载 Formula 和二进制包，国内网络容易超时。切换到国内镜像源后，brew update 和 brew install 将从镜像站拉取，速度更快更稳定。")
+                        .font(.prismBody)
+                        .foregroundColor(.prismTextPrimary)
+                        .fixedSize(horizontal: false, vertical: true)
+
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("• 切换后更新 ~/.zshrc 环境变量和 Homebrew 仓库 remote 地址")
+                        Text("• 后续使用 brew update/install 即可享受加速")
+                        Text("• 随时可以切回官方源，无任何副作用")
+                    }
+                    .font(.prismCaption)
+                    .foregroundColor(.prismTextSecondary)
+                }
+                .padding(16)
+                .frame(width: 360)
+                .background(Color.prismSurface)
+            }
+
             Spacer()
             if let elapsed = vm.elapsedSinceLastMeasured {
                 Text("上次测速: \(elapsed)")

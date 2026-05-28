@@ -7,6 +7,7 @@ struct PypiMirrorView: View {
     @State private var bannerStyle: NotificationBanner.Style = .success
     @State private var bannerMessage = ""
     @State private var expandedLogIds: Set<UUID> = []
+    @State private var showHelp = false
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -66,6 +67,33 @@ struct PypiMirrorView: View {
             Text("PyPI 设置")
                 .font(.prismTitle)
                 .foregroundColor(.prismTextPrimary)
+
+            Button(action: { showHelp = true }) {
+                Image(systemName: "questionmark.circle")
+                    .font(.system(size: 14))
+                    .foregroundColor(.prismTextTertiary)
+            }
+            .buttonStyle(.plain)
+            .popover(isPresented: $showHelp) {
+                VStack(alignment: .leading, spacing: 12) {
+                    Text("Python 包管理器 pip 默认从 PyPI 官方源下载包，国内网络容易超时。切换到国内镜像源后，pip install 速度将大幅提升。")
+                        .font(.prismBody)
+                        .foregroundColor(.prismTextPrimary)
+                        .fixedSize(horizontal: false, vertical: true)
+
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("• 切换后更新 pip 全局配置文件")
+                        Text("• 后续使用 pip install 即可享受加速")
+                        Text("• 随时可以切回官方源，无任何副作用")
+                    }
+                    .font(.prismCaption)
+                    .foregroundColor(.prismTextSecondary)
+                }
+                .padding(16)
+                .frame(width: 360)
+                .background(Color.prismSurface)
+            }
+
             Spacer()
             if let elapsed = vm.elapsedSinceLastMeasured {
                 Text("上次测速: \(elapsed)")

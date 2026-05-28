@@ -8,6 +8,7 @@ struct GitHubMirrorView: View {
     @State private var bannerStyle: NotificationBanner.Style = .success
     @State private var bannerMessage = ""
     @State private var expandedLogIds: Set<UUID> = []
+    @State private var showHelp = false
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -85,6 +86,33 @@ struct GitHubMirrorView: View {
             Text("GitHub 镜像设置")
                 .font(.prismTitle)
                 .foregroundColor(.prismTextPrimary)
+
+            Button(action: { showHelp = true }) {
+                Image(systemName: "questionmark.circle")
+                    .font(.system(size: 14))
+                    .foregroundColor(.prismTextTertiary)
+            }
+            .buttonStyle(.plain)
+            .popover(isPresented: $showHelp) {
+                VStack(alignment: .leading, spacing: 12) {
+                    Text("GitHub 代码仓库克隆和拉取在国内网络环境下速度较慢。切换到国内镜像源后，git clone 和 git push 相关操作将自动通过镜像站加速。")
+                        .font(.prismBody)
+                        .foregroundColor(.prismTextPrimary)
+                        .fixedSize(horizontal: false, vertical: true)
+
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("• 切换后更新 git 全局配置 url.insteadOf")
+                        Text("• 所有 git clone/push 操作将自动经过镜像站")
+                        Text("• 随时可以切回官方源，无任何副作用")
+                    }
+                    .font(.prismCaption)
+                    .foregroundColor(.prismTextSecondary)
+                }
+                .padding(16)
+                .frame(width: 360)
+                .background(Color.prismSurface)
+            }
+
             Spacer()
             if let elapsed = vm.elapsedSinceLastMeasured {
                 Text("上次测速: \(elapsed)")
