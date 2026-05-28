@@ -11,6 +11,9 @@ struct ContentView: View {
             detailView
         }
         .navigationSplitViewStyle(.prominentDetail)
+        .toolbar(.hidden)
+        .toolbarBackground(.hidden)
+        .ignoresSafeArea(edges: .top)
         .preferredColorScheme(colorScheme == .system ? nil : (colorScheme == .dark ? .dark : .light))
     }
 

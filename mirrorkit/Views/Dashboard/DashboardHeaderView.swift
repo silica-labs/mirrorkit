@@ -7,9 +7,6 @@ struct DashboardHeaderView: View {
 
     var body: some View {
         HStack {
-            Image(systemName: "gauge.medium")
-                .font(.system(size: 18))
-                .foregroundColor(.prismAccent)
             Text("Dashboard")
                 .font(.prismTitle)
                 .foregroundColor(.prismTextPrimary)
@@ -25,6 +22,7 @@ struct DashboardHeaderView: View {
                 .focusEffectDisabled()
         }
         .padding(.horizontal, 20)
-        .padding(.vertical, 12)
+        .padding(.top, 0)
+        .padding(.bottom, 12)
     }
 }

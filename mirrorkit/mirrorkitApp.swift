@@ -6,5 +6,6 @@ struct mirrorkitApp: App {
         WindowGroup {
             ContentView()
         }
+        .windowStyle(.hiddenTitleBar)
     }
 }
