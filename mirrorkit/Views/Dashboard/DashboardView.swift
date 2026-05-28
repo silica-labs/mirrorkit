@@ -25,7 +25,6 @@ struct DashboardView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             DashboardHeaderView(lastMeasured: lastMeasured, isMeasuring: isMeasuring, onMeasure: measureAll)
-            Divider().overlay(Color.prismBorder)
 
             ScrollView {
                 LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())], spacing: 16) {

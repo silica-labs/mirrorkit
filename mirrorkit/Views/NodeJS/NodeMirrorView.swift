@@ -11,7 +11,6 @@ struct NodeMirrorView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             headerArea
-            Divider().overlay(Color.prismBorder)
 
             ScrollView {
                 VStack(spacing: 20) {
@@ -79,7 +78,6 @@ struct NodeMirrorView: View {
                 .keyboardShortcut("r", modifiers: .command)
         }
         .padding(.horizontal, 20)
-        .padding(.vertical, 12)
     }
 
     private func showBannerMessage(style: NotificationBanner.Style, message: String) {
