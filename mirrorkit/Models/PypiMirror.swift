@@ -85,15 +85,6 @@ struct PypiMirror: Identifiable, Equatable {
             trustedHost: "mirrors.ustc.edu.cn"
         ),
         PypiMirror(
-            id: "sjtu",
-            name: "SJTUG 思源",
-            systemImage: "building.columns",
-            mirrorURL: "https://mirror.sjtu.edu.cn/pypi/web/simple",
-            testURL: "https://mirror.sjtu.edu.cn",
-            isRecommended: false,
-            trustedHost: "mirror.sjtu.edu.cn"
-        ),
-        PypiMirror(
             id: "sustech",
             name: "南方科技大学",
             systemImage: "building.columns",
@@ -110,15 +101,6 @@ struct PypiMirror: Identifiable, Equatable {
             testURL: "https://mirrors.zju.edu.cn",
             isRecommended: false,
             trustedHost: "mirrors.zju.edu.cn"
-        ),
-        PypiMirror(
-            id: "jlu",
-            name: "吉林大学",
-            systemImage: "building.columns",
-            mirrorURL: "https://mirrors.jlu.edu.cn/pypi/web/simple",
-            testURL: "https://mirrors.jlu.edu.cn",
-            isRecommended: false,
-            trustedHost: "mirrors.jlu.edu.cn"
-        ),
+        )
     ]
 }

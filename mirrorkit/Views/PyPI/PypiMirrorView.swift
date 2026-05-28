@@ -64,10 +64,7 @@ struct PypiMirrorView: View {
 
     private var headerArea: some View {
         HStack {
-            Image(systemName: "gear.badge.questionmark")
-                .font(.system(size: 18))
-                .foregroundColor(.prismAccent)
-            Text("PyPI 镜像")
+            Text("PyPI 设置")
                 .font(.prismTitle)
                 .foregroundColor(.prismTextPrimary)
             Spacer()
@@ -78,6 +75,7 @@ struct PypiMirrorView: View {
             }
             PrismButton(vm.isMeasuring ? "测速中..." : "重新测速", systemImage: "arrow.clockwise", style: .secondary, isDisabled: vm.isMeasuring, isLoading: vm.isMeasuring, action: vm.startSpeedTest)
                 .focusEffectDisabled()
+                .keyboardShortcut("r", modifiers: .command)
         }
         .padding(.horizontal, 20)
         .padding(.vertical, 12)

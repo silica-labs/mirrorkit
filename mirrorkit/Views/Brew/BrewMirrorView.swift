@@ -83,9 +83,6 @@ struct BrewMirrorView: View {
 
     private var headerArea: some View {
         HStack {
-            Image(systemName: "mug")
-                .font(.system(size: 18))
-                .foregroundColor(.prismAccent)
             Text("Brew 镜像设置")
                 .font(.prismTitle)
                 .foregroundColor(.prismTextPrimary)

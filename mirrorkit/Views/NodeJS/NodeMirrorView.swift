@@ -66,9 +66,6 @@ struct NodeMirrorView: View {
 
     private var headerArea: some View {
         HStack {
-            Image(systemName: "cube")
-                .font(.system(size: 18))
-                .foregroundColor(.prismAccent)
             Text("Node.js 镜像设置")
                 .font(.prismTitle)
                 .foregroundColor(.prismTextPrimary)

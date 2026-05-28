@@ -83,9 +83,6 @@ struct GitHubMirrorView: View {
 
     private var headerArea: some View {
         HStack {
-            Image(systemName: "chevron.left.forwardslash.chevron.right")
-                .font(.system(size: 18))
-                .foregroundColor(.prismAccent)
             Text("GitHub 镜像设置")
                 .font(.prismTitle)
                 .foregroundColor(.prismTextPrimary)
