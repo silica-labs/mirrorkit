@@ -23,6 +23,8 @@ struct ContentView: View {
             BrewMirrorView()
         case .github:
             GitHubMirrorView()
+        case .nodejs:
+            NodeMirrorView()
         default:
             placeholder(for: selectedItem)
         }

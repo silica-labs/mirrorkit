@@ -98,6 +98,7 @@ struct MirrorListView: View {
             }
             .padding(.horizontal, 12)
             .padding(.vertical, 12)
+            .background(isActive ? Color.prismAccentDim : Color.clear)
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)

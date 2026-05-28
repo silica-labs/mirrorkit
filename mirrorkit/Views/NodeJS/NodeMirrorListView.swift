@@ -1,12 +1,12 @@
 import SwiftUI
 
-struct GitHubMirrorListView: View {
-    let mirrors: [GitHubMirror]
+struct NodeMirrorListView: View {
+    let mirrors: [NodeMirror]
     let latencyResults: [String: TimeInterval]
     let activeMirrorId: String
     let maxLatency: TimeInterval
     let isMeasuring: Bool
-    let onSelect: (GitHubMirror) -> Void
+    let onSelect: (NodeMirror) -> Void
 
     var body: some View {
         VStack(spacing: 0) {
@@ -25,7 +25,7 @@ struct GitHubMirrorListView: View {
         .cornerRadius(8)
     }
 
-    private func mirrorRow(_ mirror: GitHubMirror) -> some View {
+    private func mirrorRow(_ mirror: NodeMirror) -> some View {
         let isActive = mirror.id == activeMirrorId
         let latency = latencyResults[mirror.id]
         let isUnreachable = !mirror.isOfficial && latency == .infinity
@@ -76,15 +76,17 @@ struct GitHubMirrorListView: View {
                 LatencyBar(latency: latency, maxLatency: maxLatency, isMeasuring: isMeasuring && latency == nil)
                     .frame(width: 120)
 
-                if isActive {
-                    Text("当前")
+                if mirror.isRecommended {
+                    Text("推荐")
                         .font(.prismCaption)
-                        .foregroundColor(.prismAccent)
+                        .foregroundColor(.prismAccentWarm)
                         .padding(.horizontal, 6)
                         .padding(.vertical, 2)
-                        .background(Color.prismAccentDim)
+                        .background(Color.prismAccentWarm.opacity(0.15))
                         .cornerRadius(3)
-                } else if isUnreachable {
+                }
+
+                if isUnreachable {
                     Text("无法访问")
                         .font(.prismCaption)
                         .foregroundColor(.prismError)
