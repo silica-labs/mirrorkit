@@ -5,7 +5,7 @@ struct ContentView: View {
     @AppStorage("mirrorkit.colorScheme") private var colorScheme: ColorSchemeOption = .system
 
     var body: some View {
-        NavigationSplitView {
+        NavigationSplitView(columnVisibility: .constant(.all)) {
             SidebarView(selectedItem: $selectedItem)
         } detail: {
             detailView
