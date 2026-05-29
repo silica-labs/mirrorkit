@@ -7,11 +7,15 @@ struct DashboardView: View {
     @State private var gitHubVM = GitHubMirrorVM()
     @State private var nodeVM = NodeMirrorVM()
     @State private var pypiVM = PypiMirrorVM()
+    @State private var ohmyzshVM = OhmyzshMirrorVM()
+    @State private var goVM = GoMirrorVM()
 
     @State private var brewLatency: TimeInterval?
     @State private var gitHubLatency: TimeInterval?
     @State private var nodeLatency: TimeInterval?
     @State private var pypiLatency: TimeInterval?
+    @State private var ohmyzshLatency: TimeInterval?
+    @State private var goLatency: TimeInterval?
     @State private var isMeasuring = false
     @State private var lastMeasured: Date?
 
@@ -21,17 +25,21 @@ struct DashboardView: View {
     private var activeGitHub: GitHubMirror { gitHubVM.activeMirror }
     private var activeNode: NodeMirror { nodeVM.activeMirror }
     private var activePypi: PypiMirror { pypiVM.activeMirror }
+    private var activeOhmyzsh: OhmyzshMirror { ohmyzshVM.activeMirror }
+    private var activeGo: GoMirror { goVM.activeMirror }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             DashboardHeaderView(lastMeasured: lastMeasured, isMeasuring: isMeasuring, onMeasure: measureAll)
 
             ScrollView {
-                LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())], spacing: 16) {
+                LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())], spacing: 16) {
                     brewCard
+                    ohmyzshCard
                     gitHubCard
                     nodeCard
                     pypiCard
+                    goCard
                 }
                 .padding(20)
             }
@@ -100,6 +108,24 @@ struct DashboardView: View {
         )
     }
 
+    private var ohmyzshCard: some View {
+        let mirror = activeOhmyzsh
+        return DashboardMirrorCard(
+            icon: AnyView(mirror.iconImage(size: 24)),
+            title: "Oh My Zsh 镜像：\(mirror.name)",
+            status: mirror.id == "official" ? .warning : .success,
+            latency: ohmyzshLatency,
+            isMeasuring: isMeasuring,
+            destination: .ohmyzsh,
+            configContent: AnyView(
+                VStack(alignment: .leading, spacing: 4) {
+                    configRow("git remote", mirror.gitRemoteURL)
+                }
+            ),
+            onNavigate: { selectedItem = $0 }
+        )
+    }
+
     private var pypiCard: some View {
         let mirror = activePypi
         return DashboardMirrorCard(
@@ -113,6 +139,24 @@ struct DashboardView: View {
                 VStack(alignment: .leading, spacing: 4) {
                     configRow("index-url", mirror.mirrorURL ?? "（已清除）")
                     configRow("trusted-host", mirror.trustedHost ?? "（无）")
+                }
+            ),
+            onNavigate: { selectedItem = $0 }
+        )
+    }
+
+    private var goCard: some View {
+        let mirror = activeGo
+        return DashboardMirrorCard(
+            icon: AnyView(mirror.iconImage(size: 24)),
+            title: "Go Proxy 镜像：\(mirror.name)",
+            status: mirror.isOfficial ? .warning : .success,
+            latency: goLatency,
+            isMeasuring: isMeasuring,
+            destination: .go,
+            configContent: AnyView(
+                VStack(alignment: .leading, spacing: 4) {
+                    configRow("GOPROXY", mirror.proxyURL ?? "（已清除）")
                 }
             ),
             onNavigate: { selectedItem = $0 }
@@ -137,20 +181,26 @@ struct DashboardView: View {
         isMeasuring = true
         brewLatency = nil
         gitHubLatency = nil
+        ohmyzshLatency = nil
         nodeLatency = nil
         pypiLatency = nil
+        goLatency = nil
 
         Task {
             async let brew = measurer.measure(url: activeBrew.testURL)
             async let gitHub = measurer.measure(url: activeGitHub.testURL, timeoutInterval: 10)
+            async let ohmyzsh = measurer.measure(url: activeOhmyzsh.testURL, timeoutInterval: 10)
             async let node = measurer.measure(url: activeNode.testURL, timeoutInterval: 10)
             async let pypi = measurer.measure(url: activePypi.testURL, timeoutInterval: 10)
+            async let go = measurer.measure(url: activeGo.testURL, timeoutInterval: 10)
 
-            let (b, g, n, p) = await (brew, gitHub, node, pypi)
+            let (b, g, o, n, p, go_) = await (brew, gitHub, ohmyzsh, node, pypi, go)
             brewLatency = b
             gitHubLatency = g
+            ohmyzshLatency = o
             nodeLatency = n
             pypiLatency = p
+            goLatency = go_
             isMeasuring = false
             lastMeasured = Date()
         }
