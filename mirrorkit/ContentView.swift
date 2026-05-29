@@ -32,6 +32,8 @@ struct ContentView: View {
             NodeMirrorView()
         case .pypi:
             PypiMirrorView()
+        case .go:
+            GoMirrorView()
         default:
             placeholder(for: selectedItem)
         }

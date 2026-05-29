@@ -7,6 +7,7 @@ enum SidebarItem: String, Hashable, CaseIterable {
     case github
     case nodejs
     case pypi
+    case go
     case proxy
     case diagnostics
 
@@ -18,6 +19,7 @@ enum SidebarItem: String, Hashable, CaseIterable {
         case .github: return "GitHub 镜像"
         case .nodejs: return "Node.js Release 镜像"
         case .pypi: return "PyPI 镜像"
+        case .go: return "Go Module Proxy"
         case .proxy: return "代理配置"
         case .diagnostics: return "诊断"
         }
@@ -31,6 +33,7 @@ enum SidebarItem: String, Hashable, CaseIterable {
         case .github: return "chevron.left.forwardslash.chevron.right"
         case .nodejs: return "cube"
         case .pypi: return "square.stack.3d.up"
+        case .go: return "chevron.left.forwardslash.chevron.right"
         case .proxy: return "arrow.triangle.branch"
         case .diagnostics: return "stethoscope"
         }
@@ -43,7 +46,7 @@ struct SidebarSection: Identifiable {
     let items: [SidebarItem]
 
     static let all: [SidebarSection] = [
-        SidebarSection(id: "mirror", title: "镜像源", items: [.brew, .ohmyzsh, .github, .nodejs, .pypi]),
+        SidebarSection(id: "mirror", title: "镜像源", items: [.brew, .ohmyzsh, .github, .nodejs, .pypi, .go]),
         // SidebarSection(id: "network", title: "网络", items: [.proxy, .diagnostics]),
     ]
 }
