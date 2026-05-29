@@ -1,5 +1,7 @@
 # Xcode
 *.xcworkspace
+build/
+*.dmg
 xcuserdata/
 DerivedData/
 *.hmap
