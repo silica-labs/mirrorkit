@@ -12,11 +12,14 @@ final class BrewMirrorVM {
     var logs: [LogEntry] = []
     var activeMirrorId: String
 
+    let isInstalled: Bool
+
     private let service = BrewMirrorService.shared
     private let measurer = LatencyMeasurer()
 
     init() {
         activeMirrorId = service.activeMirrorId
+        isInstalled = BrewMirrorService.isInstalled()
     }
 
     var maxLatency: TimeInterval {

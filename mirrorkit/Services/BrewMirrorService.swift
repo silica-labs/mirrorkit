@@ -4,6 +4,11 @@ import Foundation
 final class BrewMirrorService {
     static let shared = BrewMirrorService()
 
+    static func isInstalled() -> Bool {
+        let paths = ["/opt/homebrew/bin/brew", "/usr/local/bin/brew"]
+        return paths.contains { FileManager.default.fileExists(atPath: $0) }
+    }
+
     private let shellConfig = ShellConfigService()
     private let gitManager = GitRemoteManager()
     private let prefs = BrewMirrorPreferenceStore.shared

@@ -10,6 +10,40 @@ struct BrewMirrorView: View {
     @State private var showHelp = false
 
     var body: some View {
+        Group {
+            if vm.isInstalled {
+                installedView
+            } else {
+                notInstalledView
+            }
+        }
+        .background(Color.prismBackground)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .onAppear {
+            if vm.isInstalled { vm.startSpeedTest() }
+        }
+        .overlay(alignment: .top) {
+            if showBanner {
+                NotificationBanner(style: bannerStyle, message: bannerMessage, onDismiss: { showBanner = false })
+                    .padding(.horizontal, 20)
+                    .padding(.top, 8)
+                    .transition(.opacity.combined(with: .move(edge: .top)))
+            }
+        }
+        .animation(.easeOut(duration: 0.2), value: showBanner)
+        .loadingOverlay(vm.isSwitching, message: "正在切换镜像源...")
+        .onChange(of: vm.logs.count) { _, _ in
+            if let lastLog = vm.logs.first {
+                if lastLog.icon == "xmark.circle" {
+                    showBannerMessage(style: .error, message: "切换失败")
+                } else if lastLog.icon != "info.circle" {
+                    showBannerMessage(style: .success, message: lastLog.message)
+                }
+            }
+        }
+    }
+
+    private var installedView: some View {
         VStack(alignment: .leading, spacing: 0) {
             headerArea
 
@@ -40,28 +74,20 @@ struct BrewMirrorView: View {
                 .padding(20)
             }
         }
-        .background(Color.prismBackground)
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .onAppear { vm.startSpeedTest() }
-        .overlay(alignment: .top) {
-            if showBanner {
-                NotificationBanner(style: bannerStyle, message: bannerMessage, onDismiss: { showBanner = false })
-                    .padding(.horizontal, 20)
-                    .padding(.top, 8)
-                    .transition(.opacity.combined(with: .move(edge: .top)))
-            }
-        }
-        .animation(.easeOut(duration: 0.2), value: showBanner)
-        .loadingOverlay(vm.isSwitching, message: "正在切换镜像源...")
-        .onChange(of: vm.logs.count) { _, _ in
-            if let lastLog = vm.logs.first {
-                if lastLog.icon == "xmark.circle" {
-                    showBannerMessage(style: .error, message: "切换失败")
-                } else if lastLog.icon != "info.circle" {
-                    showBannerMessage(style: .success, message: lastLog.message)
+    }
+
+    private var notInstalledView: some View {
+        EmptyState(
+            systemImage: "mug",
+            title: "未检测到 Homebrew",
+            description: "Homebrew 是 macOS 上最流行的包管理器。\n安装后即可在此管理镜像源，加速 brew install。",
+            actionTitle: "了解如何安装",
+            action: {
+                if let url = URL(string: "https://brew.sh") {
+                    NSWorkspace.shared.open(url)
                 }
             }
-        }
+        )
     }
 
     private var headerArea: some View {

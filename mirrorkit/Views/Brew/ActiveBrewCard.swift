@@ -36,7 +36,7 @@ struct ActiveBrewCard: View {
                                         .foregroundColor(.prismTextTertiary)
                                 }
                             }
-                            if let domain = mirror.bottleDomain {
+                            if let domain = mirror.brewGitRemote {
                                 HStack(spacing: 4) {
                                     Text(domain)
                                         .lineLimit(1)
