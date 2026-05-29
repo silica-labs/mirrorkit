@@ -16,7 +16,7 @@ enum SidebarItem: String, Hashable, CaseIterable {
         case .brew: return "Brew 镜像"
         case .ohmyzsh: return "Oh My Zsh 镜像"
         case .github: return "GitHub 镜像"
-        case .nodejs: return "Node.js 镜像"
+        case .nodejs: return "Node.js Release 镜像"
         case .pypi: return "PyPI 镜像"
         case .proxy: return "代理配置"
         case .diagnostics: return "诊断"

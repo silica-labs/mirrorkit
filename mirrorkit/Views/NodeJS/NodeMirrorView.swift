@@ -10,6 +10,32 @@ struct NodeMirrorView: View {
     @State private var showHelp = false
 
     var body: some View {
+        installedView
+        .background(Color.prismBackground)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .onAppear { vm.startSpeedTest() }
+        .overlay(alignment: .top) {
+            if showBanner {
+                NotificationBanner(style: bannerStyle, message: bannerMessage, onDismiss: { showBanner = false })
+                    .padding(.horizontal, 20)
+                    .padding(.top, 8)
+                    .transition(.opacity.combined(with: .move(edge: .top)))
+            }
+        }
+        .animation(.easeOut(duration: 0.2), value: showBanner)
+        .loadingOverlay(vm.isSwitching, message: "正在切换镜像源...")
+        .onChange(of: vm.logs.count) { _, _ in
+            if let lastLog = vm.logs.first {
+                if lastLog.icon == "xmark.circle" {
+                    showBannerMessage(style: .error, message: "切换失败")
+                } else if lastLog.icon != "info.circle" {
+                    showBannerMessage(style: .success, message: lastLog.message)
+                }
+            }
+        }
+    }
+
+    private var installedView: some View {
         VStack(alignment: .leading, spacing: 0) {
             headerArea
 
@@ -40,33 +66,11 @@ struct NodeMirrorView: View {
                 .padding(20)
             }
         }
-        .background(Color.prismBackground)
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .onAppear { vm.startSpeedTest() }
-        .overlay(alignment: .top) {
-            if showBanner {
-                NotificationBanner(style: bannerStyle, message: bannerMessage, onDismiss: { showBanner = false })
-                    .padding(.horizontal, 20)
-                    .padding(.top, 8)
-                    .transition(.opacity.combined(with: .move(edge: .top)))
-            }
-        }
-        .animation(.easeOut(duration: 0.2), value: showBanner)
-        .loadingOverlay(vm.isSwitching, message: "正在切换镜像源...")
-        .onChange(of: vm.logs.count) { _, _ in
-            if let lastLog = vm.logs.first {
-                if lastLog.icon == "xmark.circle" {
-                    showBannerMessage(style: .error, message: "切换失败")
-                } else if lastLog.icon != "info.circle" {
-                    showBannerMessage(style: .success, message: lastLog.message)
-                }
-            }
-        }
     }
 
     private var headerArea: some View {
         HStack {
-            Text("Node.js 镜像设置")
+            Text("Node.js Release 镜像")
                 .font(.prismTitle)
                 .foregroundColor(.prismTextPrimary)
 
@@ -78,15 +82,15 @@ struct NodeMirrorView: View {
             .buttonStyle(.plain)
             .popover(isPresented: $showHelp) {
                 VStack(alignment: .leading, spacing: 12) {
-                    Text("Node.js 的包管理器 npm/yarn/pnpm 默认从官方 registry 下载包，国内网络容易超时。切换到国内镜像源后，npm install 速度将大幅提升。")
+                    Text("nvm / n / fnm 等 Node.js 版本管理器默认从 nodejs.org 下载二进制包，国内网络容易超时。切换到国内镜像源后，node 安装速度将大幅提升。")
                         .font(.prismBody)
                         .foregroundColor(.prismTextPrimary)
                         .fixedSize(horizontal: false, vertical: true)
 
                     VStack(alignment: .leading, spacing: 4) {
-                        Text("• 切换后更新 shell profile 环境变量")
-                        Text("• 后续使用 npm/yarn/pnpm install 即可享受加速")
-                        Text("• 随时可以切回官方源，无任何副作用")
+                        Text("• 切换后更新 shell profile 中的 NVM_NODEJS_ORG_MIRROR / N_NODE_MIRROR / FNM_NODE_DIST_MIRROR 环境变量")
+                        Text("• 后续使用 nvm install / fnm install 即可享受加速")
+                        Text("• 不依赖任何特定版本管理器，写入环境变量本身无副作用")
                     }
                     .font(.prismCaption)
                     .foregroundColor(.prismTextSecondary)

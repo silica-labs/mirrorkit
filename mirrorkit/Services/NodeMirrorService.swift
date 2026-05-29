@@ -14,14 +14,12 @@ final class NodeMirrorService {
     func applyMirror(_ mirror: NodeMirror) async throws {
         let path = try ShellProfileManager.shellProfilePath()
         let block = buildBlock(mirror)
-        try ShellProfileManager.writeBlock(block, to: path, markerStart: markerStart, markerEnd: markerEnd)
+        if block.isEmpty {
+            try ShellProfileManager.removeBlock(from: path, markerStart: markerStart, markerEnd: markerEnd)
+        } else {
+            try ShellProfileManager.writeBlock(block, to: path, markerStart: markerStart, markerEnd: markerEnd)
+        }
         activeMirrorId = mirror.id
-    }
-
-    func resetToOfficial() async throws {
-        let path = try ShellProfileManager.shellProfilePath()
-        try ShellProfileManager.removeBlock(from: path, markerStart: markerStart, markerEnd: markerEnd)
-        activeMirrorId = "official"
     }
 
     private func buildBlock(_ mirror: NodeMirror) -> String {

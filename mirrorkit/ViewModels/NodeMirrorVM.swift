@@ -65,20 +65,12 @@ final class NodeMirrorVM {
         Task {
             isSwitching = true
             do {
-                if mirror.isOfficial {
-                    try await service.resetToOfficial()
-                } else {
-                    try await service.applyMirror(mirror)
-                }
+                try await service.applyMirror(mirror)
                 activeMirrorId = mirror.id
 
-                let icon = mirror.isOfficial ? "globe" : "checkmark.circle"
-                let msg: String
-                if mirror.isOfficial {
-                    msg = "已恢复 Node.js 官方源"
-                } else {
-                    msg = "已切换到 \(mirror.name)"
-                }
+                let isOfficial = mirror.id == "official"
+                let icon = isOfficial ? "globe" : "checkmark.circle"
+                let msg = isOfficial ? "已恢复 Node.js 官方源" : "已切换到 \(mirror.name)"
                 let detail = "NVM_NODEJS_ORG_MIRROR: \(mirror.mirrorURL ?? "（已清除）")\nN_NODE_MIRROR: \(mirror.mirrorURL ?? "（已清除）")\nFNM_NODE_DIST_MIRROR: \(mirror.mirrorURL ?? "（已清除）")"
                 logs.insert(LogEntry(icon: icon, message: msg, detail: detail, timestamp: Date()), at: 0)
             } catch {

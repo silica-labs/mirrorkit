@@ -8,7 +8,7 @@ struct NodeMirror: Identifiable, Equatable {
     let testURL: String
     let isRecommended: Bool
 
-    var isOfficial: Bool { mirrorURL == nil }
+    var isOfficial: Bool { id == "official" }
 
     static let allPresets: [NodeMirror] = [
         NodeMirror(
@@ -30,7 +30,7 @@ struct NodeMirror: Identifiable, Equatable {
         NodeMirror(
             id: "tencent",
             name: "腾讯云",
-            systemImage: "cloud.fill",
+            systemImage: "cloud",
             mirrorURL: "https://mirrors.cloud.tencent.com/nodejs-release/",
             testURL: "https://mirrors.cloud.tencent.com",
             isRecommended: false
@@ -38,14 +38,14 @@ struct NodeMirror: Identifiable, Equatable {
         NodeMirror(
             id: "huawei",
             name: "华为云",
-            systemImage: "cloud.fill",
+            systemImage: "cloud",
             mirrorURL: "https://repo.huaweicloud.com/nodejs/",
             testURL: "https://repo.huaweicloud.com",
             isRecommended: false
         ),
         NodeMirror(
             id: "ustc",
-            name: "中科大 USTC",
+            name: "中国科学技术大学",
             systemImage: "building.columns",
             mirrorURL: "https://mirrors.ustc.edu.cn/node/",
             testURL: "https://mirrors.ustc.edu.cn",
@@ -53,8 +53,8 @@ struct NodeMirror: Identifiable, Equatable {
         ),
         NodeMirror(
             id: "tuna",
-            name: "清华大学 TUNA",
-            systemImage: "graduationcap",
+            name: "清华大学",
+            systemImage: "building.columns",
             mirrorURL: "https://mirrors.tuna.tsinghua.edu.cn/nodejs-release/",
             testURL: "https://mirrors.tuna.tsinghua.edu.cn",
             isRecommended: true
@@ -62,7 +62,7 @@ struct NodeMirror: Identifiable, Equatable {
         NodeMirror(
             id: "nju",
             name: "南京大学",
-            systemImage: "building.columns.fill",
+            systemImage: "building.columns",
             mirrorURL: "https://mirror.nju.edu.cn/nodejs-release/",
             testURL: "https://mirror.nju.edu.cn",
             isRecommended: false
@@ -70,7 +70,7 @@ struct NodeMirror: Identifiable, Equatable {
         NodeMirror(
             id: "pku",
             name: "北京大学",
-            systemImage: "building.columns.fill",
+            systemImage: "building.columns",
             mirrorURL: "https://mirrors.pku.edu.cn/nodejs-release/",
             testURL: "https://mirrors.pku.edu.cn",
             isRecommended: false
@@ -78,7 +78,7 @@ struct NodeMirror: Identifiable, Equatable {
         NodeMirror(
             id: "nyist",
             name: "南阳理工学院",
-            systemImage: "building.columns.fill",
+            systemImage: "building.columns",
             mirrorURL: "https://mirror.nyist.edu.cn/nodejs-release/",
             testURL: "https://mirror.nyist.edu.cn",
             isRecommended: false
@@ -86,18 +86,10 @@ struct NodeMirror: Identifiable, Equatable {
         NodeMirror(
             id: "jcut",
             name: "荆楚理工学院",
-            systemImage: "building.columns.fill",
+            systemImage: "building.columns",
             mirrorURL: "https://mirrors.jcut.edu.cn/nodejs-release/",
             testURL: "https://mirrors.jcut.edu.cn",
             isRecommended: false
-        ),
-        NodeMirror(
-            id: "haedu",
-            name: "河南省教科网",
-            systemImage: "building.columns.fill",
-            mirrorURL: "https://mirrors.ha.edu.cn/nodejs-release/",
-            testURL: "https://mirrors.ha.edu.cn",
-            isRecommended: false
-        ),
+        )
     ]
 }
