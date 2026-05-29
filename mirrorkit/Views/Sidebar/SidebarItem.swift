@@ -14,10 +14,10 @@ enum SidebarItem: String, Hashable, CaseIterable {
     var title: String {
         switch self {
         case .dashboard: return "Dashboard"
-        case .brew: return "Brew 镜像"
-        case .ohmyzsh: return "Oh My Zsh 镜像"
+        case .brew: return "Homebrew"
+        case .ohmyzsh: return "Oh My Zsh"
         case .github: return "GitHub 镜像"
-        case .nodejs: return "Node.js Release 镜像"
+        case .nodejs: return "Node.js Release"
         case .pypi: return "PyPI 镜像"
         case .go: return "Go Module Proxy"
         case .proxy: return "代理配置"

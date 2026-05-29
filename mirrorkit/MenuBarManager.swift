@@ -72,7 +72,7 @@ final class MenuBarManager: NSObject {
 
     private func addBrewMenu(to menu: NSMenu) {
         let service = BrewMirrorService.shared
-        addToolMenu(to: menu, title: "Brew 镜像", image: "mug", mirrors: BrewMirror.allPresets as [any Identifiable & Equatable], activeId: service.activeMirrorId, apply: { id in
+        addToolMenu(to: menu, title: "Homebrew", image: "mug", mirrors: BrewMirror.allPresets as [any Identifiable & Equatable], activeId: service.activeMirrorId, apply: { id in
             guard let mirror = BrewMirror.allPresets.first(where: { $0.id == id }) else { return }
             try await service.selectMirror(mirror)
         })
@@ -81,7 +81,7 @@ final class MenuBarManager: NSObject {
     private func addOhmyzshMenu(to menu: NSMenu) {
         guard OhmyzshMirrorService.isInstalled() else { return }
         let service = OhmyzshMirrorService()
-        addToolMenu(to: menu, title: "Oh My Zsh 镜像", image: "terminal", mirrors: OhmyzshMirror.allPresets as [any Identifiable & Equatable], activeId: service.activeMirrorId, apply: { id in
+        addToolMenu(to: menu, title: "Oh My Zsh", image: "terminal", mirrors: OhmyzshMirror.allPresets as [any Identifiable & Equatable], activeId: service.activeMirrorId, apply: { id in
             guard let mirror = OhmyzshMirror.allPresets.first(where: { $0.id == id }) else { return }
             try await service.applyMirror(mirror)
         })
@@ -97,7 +97,7 @@ final class MenuBarManager: NSObject {
 
     private func addNodeMenu(to menu: NSMenu) {
         let service = NodeMirrorService()
-        addToolMenu(to: menu, title: "Node.js Release 镜像", image: "cube", mirrors: NodeMirror.allPresets as [any Identifiable & Equatable], activeId: service.activeMirrorId, apply: { id in
+        addToolMenu(to: menu, title: "Node.js Release", image: "cube", mirrors: NodeMirror.allPresets as [any Identifiable & Equatable], activeId: service.activeMirrorId, apply: { id in
             guard let mirror = NodeMirror.allPresets.first(where: { $0.id == id }) else { return }
             try await service.applyMirror(mirror)
         })
