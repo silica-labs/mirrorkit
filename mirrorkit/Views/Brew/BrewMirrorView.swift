@@ -3,7 +3,6 @@ import SwiftUI
 struct BrewMirrorView: View {
     @State private var vm = BrewMirrorVM()
 
-    @State private var showConfirm = false
     @State private var showBanner = false
     @State private var bannerStyle: NotificationBanner.Style = .success
     @State private var bannerMessage = ""
@@ -29,7 +28,7 @@ struct BrewMirrorView: View {
                         maxLatency: vm.maxLatency,
                         isMeasuring: vm.isMeasuring,
                         onSelect: { mirror in
-                            vm.requestSwitch(to: mirror)
+                            vm.confirmSwitch(to: mirror)
                         }
                     )
 
@@ -54,22 +53,6 @@ struct BrewMirrorView: View {
         }
         .animation(.easeOut(duration: 0.2), value: showBanner)
         .loadingOverlay(vm.isSwitching, message: "正在切换镜像源...")
-        .confirmDialog(
-            isPresented: $showConfirm,
-            title: "切换到 \(vm.pendingMirror?.name ?? "")",
-            message: "切换后将更新 ~/.zshrc 环境变量和 Homebrew 仓库 remote。",
-            confirmTitle: "切换",
-            onConfirm: {
-                vm.confirmSwitch()
-            },
-            onCancel: {
-                vm.cancelSwitch()
-            }
-        )
-        .onChange(of: vm.pendingMirror) { _, newValue in
-            showConfirm = newValue != nil
-            if newValue == nil { showConfirm = false }
-        }
         .onChange(of: vm.logs.count) { _, _ in
             if let lastLog = vm.logs.first {
                 if lastLog.icon == "xmark.circle" {

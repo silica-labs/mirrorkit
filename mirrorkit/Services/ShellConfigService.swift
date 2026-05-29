@@ -1,7 +1,7 @@
 import Foundation
 
 final class ShellConfigService {
-    private let markerStart = "# --- MirrorKit Managed ---"
+    private let markerStart = "# --- MirrorKit Brew ---"
     private let markerEnd = "# --- End MirrorKit ---"
 
     func applyMirrorConfig(_ source: BrewMirror) async throws {

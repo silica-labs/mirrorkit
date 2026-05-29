@@ -10,8 +10,6 @@ final class BrewMirrorVM {
     var isSwitching = false
     var lastMeasured: Date?
     var logs: [LogEntry] = []
-    var pendingMirror: BrewMirror?
-
     var activeMirrorId: String
 
     private let service = BrewMirrorService.shared
@@ -59,18 +57,8 @@ final class BrewMirrorVM {
         }
     }
 
-    func requestSwitch(to mirror: BrewMirror) {
-        pendingMirror = mirror
-    }
-
-    func confirmSwitch() {
-        guard let mirror = pendingMirror else { return }
-        pendingMirror = nil
+    func confirmSwitch(to mirror: BrewMirror) {
         performSwitch(to: mirror)
-    }
-
-    func cancelSwitch() {
-        pendingMirror = nil
     }
 
     private func performSwitch(to mirror: BrewMirror) {

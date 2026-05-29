@@ -8,7 +8,7 @@ struct BrewMirror: Identifiable, Equatable, Codable {
     let bottleDomain: String?
     let apiDomain: String?
 
-    var isOfficial: Bool { brewGitRemote == nil && bottleDomain == nil }
+    var isOfficial: Bool { id == "official" }
 
     var testURL: String {
         if let domain = bottleDomain { return domain }
@@ -20,21 +20,21 @@ struct BrewMirror: Identifiable, Equatable, Codable {
             id: "official",
             name: "官方源",
             icon: "globe",
-            brewGitRemote: nil,
+            brewGitRemote: "https://github.com/Homebrew/brew.git",
             bottleDomain: nil,
             apiDomain: nil
         ),
         BrewMirror(
             id: "tsinghua",
-            name: "清华大学 TUNA",
-            icon: "graduationcap",
+            name: "清华大学",
+            icon: "building.columns",
             brewGitRemote: "https://mirrors.tuna.tsinghua.edu.cn/git/homebrew/brew.git",
             bottleDomain: "https://mirrors.tuna.tsinghua.edu.cn/homebrew-bottles",
             apiDomain: "https://mirrors.tuna.tsinghua.edu.cn/homebrew/api"
         ),
         BrewMirror(
             id: "ustc",
-            name: "中科大 USTC",
+            name: "中科大",
             icon: "building.columns",
             brewGitRemote: "https://mirrors.ustc.edu.cn/brew.git",
             bottleDomain: "https://mirrors.ustc.edu.cn/homebrew-bottles",
@@ -51,7 +51,7 @@ struct BrewMirror: Identifiable, Equatable, Codable {
         BrewMirror(
             id: "tencent",
             name: "腾讯云",
-            icon: "cloud.fill",
+            icon: "cloud",
             brewGitRemote: "https://mirrors.cloud.tencent.com/homebrew/brew.git",
             bottleDomain: "https://mirrors.cloud.tencent.com/homebrew-bottles",
             apiDomain: "https://mirrors.cloud.tencent.com/homebrew/api"
@@ -59,7 +59,7 @@ struct BrewMirror: Identifiable, Equatable, Codable {
         BrewMirror(
             id: "nju",
             name: "南京大学",
-            icon: "building.columns.fill",
+            icon: "building.columns",
             brewGitRemote: "https://mirrors.nju.edu.cn/git/homebrew/brew.git",
             bottleDomain: "https://mirrors.nju.edu.cn/homebrew-bottles",
             apiDomain: "https://mirrors.nju.edu.cn/homebrew/api"

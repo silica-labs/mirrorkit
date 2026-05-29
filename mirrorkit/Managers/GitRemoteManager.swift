@@ -1,7 +1,5 @@
 import Foundation
 
-private let officialBrewRemote = "https://github.com/Homebrew/brew.git"
-
 enum GitRemoteError: Error, LocalizedError {
     case exitCode(Int32, String)
     case invalidOutput(String)
@@ -30,14 +28,6 @@ final class GitRemoteManager {
             guard result.exitCode == 0 else {
                 throw GitRemoteError.exitCode(result.exitCode, result.stderr)
             }
-        }
-    }
-
-    func restoreOfficial() async throws {
-        let brewPath = try await brewRepositoryPath()
-        let result = try await executor.run("git", arguments: ["-C", brewPath, "remote", "set-url", "origin", officialBrewRemote])
-        guard result.exitCode == 0 else {
-            throw GitRemoteError.exitCode(result.exitCode, result.stderr)
         }
     }
 

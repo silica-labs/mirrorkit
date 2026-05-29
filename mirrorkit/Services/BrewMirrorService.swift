@@ -14,17 +14,20 @@ final class BrewMirrorService {
     }
 
     func selectMirror(_ source: BrewMirror) async throws {
-        if source.isOfficial {
-            try await resetToOfficial()
-            return
-        }
-
         var errors: [Error] = []
 
-        do {
-            try await shellConfig.applyMirrorConfig(source)
-        } catch {
-            errors.append(error)
+        if source.isOfficial {
+            do {
+                try await shellConfig.resetToOfficial()
+            } catch {
+                errors.append(error)
+            }
+        } else {
+            do {
+                try await shellConfig.applyMirrorConfig(source)
+            } catch {
+                errors.append(error)
+            }
         }
 
         do {
@@ -41,12 +44,6 @@ final class BrewMirrorService {
         }
 
         activeMirrorId = source.id
-    }
-
-    func resetToOfficial() async throws {
-        try await shellConfig.resetToOfficial()
-        try await gitManager.restoreOfficial()
-        activeMirrorId = "official"
     }
 }
 
