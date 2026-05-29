@@ -74,7 +74,8 @@ final class OhmyzshMirrorVM {
                 let isOfficial = mirror.id == "official"
                 let icon = isOfficial ? "globe" : "checkmark.circle"
                 let msg = isOfficial ? "已恢复 Oh My Zsh 官方源" : "已切换到 \(mirror.name)"
-                logs.insert(LogEntry(icon: icon, message: msg, detail: "git remote origin: \(mirror.gitRemoteURL)", timestamp: Date()), at: 0)
+                let cmd = "git -C \(OhmyzshMirrorService.zshPath) remote set-url origin \(mirror.gitRemoteURL)"
+                logs.insert(LogEntry(icon: icon, message: msg, detail: cmd, timestamp: Date()), at: 0)
             } catch {
                 logs.insert(LogEntry(icon: "xmark.circle", message: "切换失败", detail: error.localizedDescription, timestamp: Date()), at: 0)
             }
