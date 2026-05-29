@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Menu Bar 快速切换 — MirrorKit 产品技术方案</title>
+<style>
+  :root {
+    --bg: #0A0A0F; --surface: #12121A; --surface-alt: #18182A;
+    --border: #1E1E2A; --border-hover: #2A2A3A;
+    --text-primary: #E8E8ED; --text-secondary: #88889A;
+    --accent: #00F0FF; --accent-dim: rgba(0,240,255,0.10);
+    --accent-warm: #FFB800; --accent-warm-dim: rgba(255,184,0,0.10);
+    --success: #34D399; --error: #F87171;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, "PingFang SC", "SF Pro Text", "Helvetica Neue", sans-serif;
+    background: var(--bg); color: var(--text-primary); line-height: 1.6;
+    padding: 40px 20px;
+  }
+  .container { max-width: 800px; margin: 0 auto; }
+  h1 { font-size: 28px; font-weight: 700; margin-bottom: 8px; }
+  .meta { color: var(--text-secondary); font-size: 14px; margin-bottom: 40px; }
+  .meta span { display: inline-block; margin-right: 24px; }
+  h2 { font-size: 20px; font-weight: 600; margin-top: 40px; margin-bottom: 16px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+  h3 { font-size: 16px; font-weight: 600; margin-top: 24px; margin-bottom: 8px; }
+  p { margin-bottom: 12px; color: var(--text-secondary); }
+  ul, ol { margin-bottom: 12px; padding-left: 20px; color: var(--text-secondary); }
+  li { margin-bottom: 4px; }
+  code {
+    background: var(--surface-alt); padding: 2px 6px; border-radius: 4px;
+    font-family: "SF Mono", Menlo, monospace; font-size: 13px;
+  }
+  pre {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+    padding: 16px; overflow-x: auto; margin-bottom: 16px;
+  }
+  pre code { background: none; padding: 0; }
+  table { width: 100%; border-collapse: collapse; margin-bottom: 16px; }
+  th, td { text-align: left; padding: 8px 12px; border-bottom: 1px solid var(--border); font-size: 14px; }
+  th { color: var(--text-primary); font-weight: 600; background: var(--surface-alt); }
+  td { color: var(--text-secondary); }
+  .tag {
+    display: inline-block; font-size: 11px; font-weight: 600; padding: 2px 8px;
+    border-radius: 4px; margin-right: 4px;
+  }
+  .tag.primary { background: var(--accent-dim); color: var(--accent); }
+  .tag.warm { background: var(--accent-warm-dim); color: var(--accent-warm); }
+  .tag.success { background: rgba(52,211,153,0.1); color: var(--success); }
+  .callout {
+    border-left: 3px solid var(--accent); background: var(--surface-alt);
+    padding: 12px 16px; border-radius: 0 6px 6px 0; margin-bottom: 16px;
+    font-size: 14px; color: var(--text-secondary);
+  }
+  .callout.warning { border-left-color: var(--accent-warm); }
+  .diagram {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+    padding: 20px; margin-bottom: 16px; font-family: "SF Mono", Menlo, monospace;
+    font-size: 13px; line-height: 1.8; color: var(--text-secondary);
+  }
+  .diagram .highlight { color: var(--accent); }
+  .flow { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; }
+  .flow-step {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+    padding: 12px 16px; font-size: 14px;
+  }
+  .flow-step .step-num {
+    display: inline-block; width: 20px; height: 20px; line-height: 20px;
+    text-align: center; background: var(--accent-dim); color: var(--accent);
+    border-radius: 4px; font-size: 11px; font-weight: 700; margin-right: 8px;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+<h1>Menu Bar 快速切换 — 产品技术方案</h1>
+<div class="meta">
+  <span>状态: <span class="tag warm">设计评审中</span></span>
+  <span>版本: v0.1</span>
+  <span>日期: 2026-05-29</span>
+</div>
+
+<h2>1. 背景</h2>
+<p>
+当前 MirrorKit 需要打开 APP 窗口才能切换镜像源。对于日常使用场景（如临时发现下载慢 -> 切换源 -> 继续下载），每次都要打开 APP 的流程过于繁琐。从 menu bar 直接操作可以大幅降低使用摩擦。
+</p>
+
+<h2>2. 功能目标</h2>
+<ol>
+  <li>不打开 APP 窗口，从 mac 顶部菜单栏快速切换镜像源</li>
+  <li>menu bar 图标显示当前镜像整体状态（正常/异常）</li>
+  <li>点击图标展开菜单，按工具分组，子菜单列出可选镜像源</li>
+  <li>切换后菜单自动关闭，无需额外确认</li>
+  <li>点击「打开 MirrorKit」可跳回主窗口</li>
+</ol>
+
+<h2>3. 整体架构</h2>
+
+<div class="diagram">
++-- App Process (always running) -----------------------------------+
+|                                                                   |
+|  +-- NSApplication --------------------------------------------+  |
+|  |  ActivationPolicy: .accessory (no dock icon)                |  |
+|  |                                                             |  |
+|  |  +-- MirrorKitApp (SwiftUI App) --+  +-- MenuBarManager --+ |  |
+|  |  |  ContentView                   |  |  NSStatusBar       | |  |
+|  |  |  NavigationSplitView           |  |  NSMenu (动态构建)  | |  |
+|  |  |  ...                           |  |  ...               | |  |
+|  |  +--------------------------------+  +--------------------+ |  |
+|  |                                                             |  |
+|  |  +-- Services (shared by both) -------------------------+   |  |
+|  |  |  BrewMirrorService / NodeMirrorService / ...         |   |  |
+|  |  |  LatencyMeasurer / ShellProfileManager / ...         |   |  |
+|  |  +------------------------------------------------------+   |  |
+|  +-------------------------------------------------------------+  |
++-------------------------------------------------------------------+
+</div>
+
+<h3>3.1 核心设计：双模式共存</h3>
+<p>SwiftUI App 和 NSStatusBar 共享同一套 Service 层：</p>
+<ul>
+  <li><strong>主窗口</strong>（SwiftUI）— 现有的完整界面，无变化</li>
+  <li><strong>Menu Bar</strong>（AppKit bridge）— 寄生在同一个 NSApplication 进程中</li>
+  <li><strong>Service 层</strong> — 两者共用，状态通过 UserDefaults + Notification 同步</li>
+</ul>
+
+<div class="callout">
+<strong>进程模型：</strong>APP 启动后始终保持运行，关闭窗口时不让进程退出。用户可以从 menu bar 操作，也可以通过「打开 MirrorKit」菜单项唤回主窗口。
+</div>
+
+<h2>4. MenuBarManager 设计</h2>
+
+<h3>4.1 结构</h3>
+<pre><code>final class MenuBarManager: NSObject {
+    private let statusItem: NSStatusItem
+    private let services: [any MirrorServiceProtocol]  // 统一的 service 接口
+
+    func rebuildMenu()          // 根据各 service 状态重建菜单
+    func refreshIcon()          // 更新 status bar 图标
+}
+</code></pre>
+
+<h3>4.2 菜单结构</h3>
+<pre><code>┌─ [图标] ──────────────────┐
+│  ✓ 所有镜像正常            │  ← 状态行（首个选中/全部正常显示绿色）
+│────────────────────────────│
+│  Brew 镜像  ▸              │
+│    ✓ 清华大学（当前）      │  ← radio 样式
+│      中国科学技术大学       │
+│      阿里云                │
+│      ...                  │
+│  Oh My Zsh 镜像  ▸        │
+│    ✓ 官方源（当前）        │
+│      ...                  │
+│  GitHub 镜像  ▸           │
+│  Node.js Release  ▸       │
+│  PyPI 镜像  ▸             │
+│  Go Module Proxy  ▸       │
+│────────────────────────────│
+│  打开 MirrorKit            │
+│  退出                      │
+└────────────────────────────┘
+</code></pre>
+
+<h3>4.3 镜像状态图标</h3>
+<table>
+  <tr><th>状态</th><th>图标</th><th>颜色</th></tr>
+  <tr><td>全部正常</td><td>应用图标</td><td>正常（无提示）</td></tr>
+  <tr><td>有镜像未配置</td><td>应用图标</td><td>橙色小点</td></tr>
+  <tr><td>有切换失败</td><td>应用图标</td><td>红色小点</td></tr>
+</table>
+
+<h2>5. 实现步骤</h2>
+
+<h3>5.1 AppKit bridge</h3>
+<p>在 SwiftUI 的 <code>mirrorkitApp.swift</code> 中通过 <code>NSApplicationDelegateAdaptor</code> 接入：</p>
+<pre><code>@main
+struct MirrorKitApp: App {
+    @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
+
+    var body: some Scene {
+        WindowGroup {
+            ContentView()
+        }
+        .windowResizability(.automatic)
+    }
+}
+
+final class AppDelegate: NSObject, NSApplicationDelegate {
+    private var menuBarManager: MenuBarManager?
+
+    func applicationDidFinishLaunching(_ notification: Notification) {
+        menuBarManager = MenuBarManager()
+        NSApp.setActivationPolicy(.accessory)
+    }
+}
+</code></pre>
+
+<h3>5.2 Service 协议抽象</h3>
+<p>为统一菜单构建，需要引入通用的 Service 协议：</p>
+<pre><code>protocol MirrorServiceProtocol {
+    var displayName: String              // "Brew 镜像"
+    var systemImage: String              // "mug"
+    var mirrors: [any MirrorItem]        // 镜像源列表
+    var activeMirrorId: String           // 当前选中
+    var latencyResults: [String: TimeInterval]
+
+    func applyMirror(id: String) async throws
+    func startSpeedTest() async
+}
+</code></pre>
+<div class="callout warning">
+  这与 REFACTOR.md 中提出的「引入 MirrorProtocol」目标一致。如果已有协议抽象，menu bar 可以直接复用。
+</div>
+
+<h3>5.3 菜单构建</h3>
+<pre><code>private func buildMenu() -> NSMenu {
+    let menu = NSMenu()
+
+    // 状态行
+    menu.addItem(statusMenuItem())
+
+    for service in services {
+        let submenu = NSMenu()
+        for mirror in service.mirrors {
+            let item = NSMenuItem(
+                title: mirror.name,
+                action: #selector(switchMirror(_:)),
+                representedObject: (service: service, mirrorId: mirror.id)
+            )
+            item.state = mirror.id == service.activeMirrorId ? .on : .off
+            submenu.addItem(item)
+        }
+        let parent = NSMenuItem(title: service.displayName, submenu: submenu)
+        parent.image = NSImage(systemSymbolName: service.systemImage, accessibilityDescription: nil)
+        menu.addItem(parent)
+    }
+
+    menu.addItem(.separator())
+    menu.addItem(NSMenuItem(title: "打开 MirrorKit", action: #selector(openWindow)))
+    menu.addItem(NSMenuItem(title: "退出", action: #selector(quit)))
+    return menu
+}
+</code></pre>
+
+<h2>6. 工作估算</h2>
+<table>
+  <tr><th>模块</th><th>工作量</th><th>备注</th></tr>
+  <tr><td>MenuBarManager</td><td><span class="tag success">~150 行</span></td><td>NSStatusItem + 菜单构建 + 事件处理</td></tr>
+  <tr><td>AppDelegate / 进程管理</td><td><span class="tag success">~40 行</span></td><td>activationPolicy、窗口唤回</td></tr>
+  <tr><td>Service 协议抽象</td><td><span class="tag success">~100 行</span></td><td>协议定义 + 各 Service 适配</td></tr>
+  <tr><td>图标状态更新</td><td><span class="tag success">~50 行</span></td><td>UserDefaults 监听 + 图标渲染</td></tr>
+  <tr><td><strong>总计</strong></td><td><strong>~350 行</strong></td><td></td></tr>
+</table>
+
+<h2>7. 已确认设计决策</h2>
+<table>
+  <tr><th>决策</th><th>选择</th></tr>
+  <tr><td>Service 引用方式</td><td>直接引用具体 Service，暂不抽象协议</td></tr>
+  <tr><td>测速功能</td><td>不需要</td></tr>
+  <tr><td>Dock 图标</td><td>.regular — 保留 Dock 图标</td></tr>
+  <tr><td>关闭窗口</td><td>隐藏窗口（Cmd+W），不退出 APP</td></tr>
+</table>
+
+</div>
+</body>
+</html>

@@ -60,5 +60,5 @@ struct ContentView: View {
 
 #Preview {
     ContentView()
-        .frame(width: 800, height: 500)
+        .frame(width: 1280, height: 900)
 }
