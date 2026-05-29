@@ -534,8 +534,7 @@
   if (saved) {
     setTheme(saved);
   } else {
-    var prefersLight = window.matchMedia('(prefers-color-scheme: light)').matches;
-    if (prefersLight) setTheme('light');
+    setTheme('dark');
   }
 
   toggle.addEventListener('click', function() {
