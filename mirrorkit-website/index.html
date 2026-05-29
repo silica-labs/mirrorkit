@@ -174,18 +174,11 @@
 
   .tools-section { padding: 80px 0; }
   .tools-grid {
-    overflow: hidden;
+    overflow-x: auto;
+    scrollbar-width: none;
   }
-  .tools-track {
-    display: flex; gap: 16px; width: fit-content;
-    animation: tools-scroll 24s ease-in-out infinite;
-  }
-  .tools-grid:hover .tools-track { animation-play-state: paused; }
-  @keyframes tools-scroll {
-    0%, 5% { transform: translateX(0); }
-    40%, 50% { transform: translateX(calc((175px + 16px) * -3 + 16px)); }
-    90%, 100% { transform: translateX(0); }
-  }
+  .tools-grid::-webkit-scrollbar { display: none; }
+  .tools-track { display: flex; gap: 16px; width: fit-content; }
   .tool-card {
     flex: 0 0 175px; width: 175px; height: 175px; scroll-snap-align: start;
     background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
@@ -514,6 +507,23 @@
 </footer>
 
 <script>
+(function() {
+  var track = document.querySelector('.tools-track');
+  if (track) {
+    var dir = 1, paused = false, grid = track.parentElement;
+    grid.addEventListener('mouseenter', function() { paused = true; });
+    grid.addEventListener('mouseleave', function() { paused = false; });
+    setInterval(function() {
+      if (paused) return;
+      var max = track.scrollWidth - grid.clientWidth;
+      if (max <= 0) return;
+      grid.scrollLeft += dir;
+      if (grid.scrollLeft >= max - 1) dir = -1;
+      if (grid.scrollLeft <= 1) dir = 1;
+    }, 40);
+  }
+})();
+
 (function() {
   var observer = new IntersectionObserver(function(entries) {
     entries.forEach(function(e) { if (e.isIntersecting) { e.target.classList.add('visible'); } });
