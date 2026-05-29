@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>MirrorKit（镜箱）— 极速切换开发工具镜像源</title>
+<title>MirrorKit — 极速切换开发工具镜像源</title>
 <link rel="icon" href="assets/favicon.png" type="image/png">
 <style>
   :root {
@@ -18,16 +18,8 @@
     --accent-dim: rgba(0, 240, 255, 0.10);
     --accent-warm: #FFB800;
     --success: #34D399;
-    --tool-brew: #FBB040;
-    --tool-github: #FFFFFF;
-    --tool-omz: #E4484B;
-    --tool-pypi: #3775A9;
-    --tool-node: #339933;
-    --tool-rustup: #CE412B;
-    --tool-flutter: #54C5F8;
     --nav-bg: rgba(10,10,15,0.85);
     --btn-primary-text: #0A0A0F;
-    --tool-github-bg: var(--text-primary);
   }
   [data-theme="light"] {
     --bg: #F5F5F7;
@@ -41,10 +33,8 @@
     --accent-dim: rgba(0, 152, 168, 0.08);
     --accent-warm: #D49A00;
     --success: #2BA872;
-    --tool-github: #333333;
     --nav-bg: rgba(255,255,255,0.85);
     --btn-primary-text: #FFFFFF;
-    --tool-github-bg: #333333;
   }
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body { transition: background 0.3s, color 0.3s; }
@@ -66,7 +56,7 @@
     border-bottom: 1px solid var(--border);
   }
   nav .inner {
-    max-width: 1100px; margin: 0 auto;
+    max-width: 1280px; margin: 0 auto;
     display: flex; align-items: center;
     padding: 0 24px; height: 56px;
   }
@@ -111,7 +101,7 @@
   [data-theme="light"] .theme-toggle .sun { display: block; }
   [data-theme="light"] .theme-toggle .moon { display: none; }
 
-  section { max-width: 1100px; margin: 0 auto; padding: 0 24px; }
+  section { max-width: 1280px; margin: 0 auto; padding: 0 24px; }
   .section-header { text-align: center; margin-bottom: 48px; }
   .section-header h2 {
     font-size: 32px; font-weight: 700; letter-spacing: -0.02em;
@@ -149,11 +139,14 @@
   .screenshot-wrapper {
     border-radius: 12px; overflow: hidden;
     box-shadow: 0 20px 60px rgba(0,0,0,0.5);
-    display: inline-block; width: 100%; max-width: 1100px;
+    display: inline-block; width: 100%; max-width: 1280px;
   }
   .screenshot-wrapper img {
     display: block; width: 100%; height: auto;
   }
+  .screenshot-wrapper img.screenshot-light { display: none; }
+  [data-theme="light"] .screenshot-wrapper img.screenshot-dark { display: none; }
+  [data-theme="light"] .screenshot-wrapper img.screenshot-light { display: block; }
 
   .tools-section { padding: 80px 0; }
   .tools-grid {
@@ -163,17 +156,27 @@
   }
   .tool-card {
     background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
-    padding: 24px 16px; text-align: center;
+    padding: 16px; text-align: center;
     transition: border-color 0.2s;
   }
   .tool-card:hover { border-color: var(--accent); }
-  .tool-card .mono {
-    width: 40px; height: 40px; border-radius: 10px;
-    display: inline-flex; align-items: center; justify-content: center;
-    font-size: 16px; font-weight: 700; margin-bottom: 12px; color: #0A0A0F;
+  .tool-card .tool-icon {
+    width: 40px; height: 40px;
+    display: flex; align-items: center; justify-content: center;
+    margin: 12px auto;
+    line-height: 0;
   }
-  .tool-card h4 { font-size: 13px; font-weight: 600; color: var(--text-primary); margin-bottom: 4px; }
-  .tool-card p { font-size: 11px; color: var(--text-secondary); }
+  .tool-card .tool-icon img,
+  .tool-card .tool-icon svg {
+    width: 40px; height: 40px; display: block;
+  }
+  [data-theme="dark"] .tool-icon img[src*="github"],
+  [data-theme="dark"] .tool-icon img[src*="rust"],
+  [data-theme="dark"] .tool-icon img[src*="iterm2"] {
+    filter: brightness(0) invert(1);
+  }
+  .tool-card h4 { font-size: 16px; font-weight: 600; color: var(--text-primary); }
+  .tool-card p { font-size: 12px; color: var(--text-secondary); }
   .tool-card .coming-soon {
     font-size: 10px; color: var(--accent-warm);
     background: rgba(255,184,0,0.1); padding: 2px 8px; border-radius: 4px;
@@ -183,21 +186,26 @@
   .features-section { padding: 80px 0; }
   .features-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    grid-template-columns: repeat(3, 1fr);
     gap: 20px;
   }
   .feature-card {
+    position: relative;
     background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
     padding: 32px;
-    transition: border-color 0.2s, box-shadow 0.2s;
+    transition: border-color 0.3s, box-shadow 0.3s;
   }
   .feature-card:hover {
-    border-color: rgba(0, 240, 255, 0.3);
-    box-shadow: 0 0 0 1px rgba(0, 240, 255, 0.1);
+    border-color: var(--accent);
+    box-shadow: 0 0 0 1px rgba(0,240,255,0.15);
   }
-  .feature-card .accent-bar {
-    width: 24px; height: 2px; background: var(--accent); border-radius: 1px;
+  .feature-icon-wrap {
+    width: 40px; height: 40px;
+    display: flex; align-items: center; justify-content: center;
     margin-bottom: 16px;
+  }
+  .feature-icon-wrap svg {
+    width: 24px; height: 24px; color: var(--accent);
   }
   .feature-card h3 { font-size: 18px; font-weight: 600; margin-bottom: 10px; }
   .feature-card p { font-size: 14px; color: var(--text-secondary); }
@@ -273,7 +281,7 @@
   <div class="inner">
     <a href="#" class="logo">
       <img src="assets/icon.png" alt="MirrorKit">
-      MirrorKit <span class="cn">镜箱</span>
+      MirrorKit
     </a>
     <div class="nav-links">
       <a href="#tools">支持的工具</a>
@@ -313,7 +321,8 @@
   </div>
   <div class="hero-visual">
     <div class="screenshot-wrapper">
-      <img src="assets/screenshot.jpg" alt="MirrorKit 应用截图">
+      <img class="screenshot-dark" src="assets/screenshot_dark.jpg" alt="MirrorKit">
+      <img class="screenshot-light" src="assets/screenshot_light.jpg" alt="MirrorKit">
     </div>
   </div>
 </section>
@@ -324,14 +333,34 @@
     <p>覆盖主流开发工具的镜像源管理，持续增加中</p>
   </div>
   <div class="tools-grid">
-    <div class="tool-card"><span class="mono" style="background: var(--tool-brew);">B</span><h4>Homebrew</h4><p>Brew 镜像源切换</p></div>
-    <div class="tool-card"><span class="mono" style="background: var(--tool-github); color: var(--bg);">G</span><h4>GitHub</h4><p>Git 镜像加速</p></div>
-    <div class="tool-card"><span class="mono" style="background: var(--tool-omz);">O</span><h4>Oh My Zsh</h4><p>Git remote 镜像</p></div>
-    <div class="tool-card"><span class="mono" style="background: var(--tool-pypi);">P</span><h4>PyPI</h4><p>pip 镜像源</p></div>
-    <div class="tool-card"><span class="mono" style="background: var(--tool-node);">N</span><h4>Node.js</h4><p>npm registry 镜像</p></div>
-    <div class="tool-card"><span class="mono" style="background: var(--tool-rustup);">R</span><h4>Rustup</h4><p>Rust 工具链镜像</p></div>
     <div class="tool-card">
-      <span class="mono" style="background: var(--tool-flutter);">F</span><h4>Flutter</h4><p>Flutter 镜像源</p>
+      <span class="tool-icon"><img src="https://cdn.simpleicons.org/homebrew" alt="Homebrew"></span>
+      <h4>Homebrew</h4><p>Brew 镜像源切换</p>
+    </div>
+    <div class="tool-card">
+      <span class="tool-icon"><img src="https://cdn.simpleicons.org/github" alt="GitHub"></span>
+      <h4>GitHub</h4><p>Git 镜像加速</p>
+    </div>
+    <div class="tool-card">
+      <span class="tool-icon"><img src="https://cdn.simpleicons.org/iterm2" alt="Oh My Zsh"></span>
+      <h4>Oh My Zsh</h4><p>Git remote 镜像</p>
+    </div>
+    <div class="tool-card">
+      <span class="tool-icon"><img src="https://cdn.simpleicons.org/pypi" alt="PyPI"></span>
+      <h4>PyPI</h4><p>pip 镜像源</p>
+    </div>
+    <div class="tool-card">
+      <span class="tool-icon"><img src="https://cdn.simpleicons.org/nodedotjs" alt="Node.js"></span>
+      <h4>Node.js</h4><p>npm registry 镜像</p>
+    </div>
+    <div class="tool-card">
+      <span class="tool-icon"><img src="https://cdn.simpleicons.org/rust" alt="Rust"></span>
+      <h4>Rustup</h4><p>Rust 工具链镜像</p>
+      <span class="coming-soon">Coming Soon</span>
+    </div>
+    <div class="tool-card">
+      <span class="tool-icon"><img src="https://cdn.simpleicons.org/flutter" alt="Flutter"></span>
+      <h4>Flutter</h4><p>Flutter 镜像源</p>
       <span class="coming-soon">Coming Soon</span>
     </div>
   </div>
@@ -340,36 +369,48 @@
 <section class="features-section" id="features">
   <div class="section-header">
     <h2>为什么选择 MirrorKit</h2>
-    <p>专为中国开发者打造的镜像管理体验</p>
+    <p>专为中国开发者打造的镜像管理工具</p>
   </div>
   <div class="features-grid">
     <div class="feature-card">
-      <div class="accent-bar"></div>
+      <div class="feature-icon-wrap">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 7h8M16 7l-3-3M16 7l-3 3M16 17H8M8 17l3 3M8 17l3-3"/></svg>
+      </div>
       <h3>一键切换</h3>
       <p>内置镜像源列表，点选即可切换。无需记忆环境变量、git remote 等命令，告别繁琐的配置过程。</p>
     </div>
     <div class="feature-card">
-      <div class="accent-bar"></div>
+      <div class="feature-icon-wrap">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="12" rx="2"/><path d="M9 20h6"/><path d="M12 16v4"/></svg>
+      </div>
       <h3>原生 macOS 体验</h3>
       <p>纯 SwiftUI 构建，与 macOS 深度集成。精致的暗色主题，丝滑的交互动画，原汁原味的 Apple 设计语言。</p>
     </div>
     <div class="feature-card">
-      <div class="accent-bar"></div>
+      <div class="feature-icon-wrap">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+      </div>
       <h3>实时测速</h3>
       <p>自动检测各镜像延迟，数据可视化展示。帮助你快速选择当前网络条件下最快的镜像源。</p>
     </div>
     <div class="feature-card">
-      <div class="accent-bar"></div>
+      <div class="feature-icon-wrap">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+      </div>
       <h3>安全可控</h3>
       <p>所有操作在本地完成，镜像源配置写入 shell profile 或 git 配置。随时一键恢复官方源，无任何副作用。</p>
     </div>
     <div class="feature-card">
-      <div class="accent-bar"></div>
+      <div class="feature-icon-wrap">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+      </div>
       <h3>多工具覆盖</h3>
       <p>Brew、GitHub、Oh My Zsh、PyPI、Node.js、Rustup 等主流工具一站管理。统一的操作界面，零学习成本。</p>
     </div>
     <div class="feature-card">
-      <div class="accent-bar"></div>
+      <div class="feature-icon-wrap">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+      </div>
       <h3>操作日志</h3>
       <p>每次切换都有详细的操作日志，记录切换时间、源地址和执行结果。问题排查一目了然。</p>
     </div>
@@ -415,7 +456,7 @@
 </section>
 
 <footer>
-  <p>MirrorKit（镜箱）— 以镜为鉴，可明得失</p>
+  <p>MirrorKit</p>
   <p style="margin-top: 8px;">&copy; 2026 <a href="https://github.com/anomalyco/mirrorkit">MirrorKit</a>. Built with SwiftUI.</p>
 </footer>
 
