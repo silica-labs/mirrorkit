@@ -6,6 +6,12 @@ final class PypiMirrorService {
     private let activeIdKey = "mirrorkit.pypiMirrorId"
     private static let pipCandidates = ["pip3", "pip"]
 
+    static func isInstalled() -> Bool {
+        let candidates = ["/opt/homebrew/bin/pip3", "/usr/local/bin/pip3", "/usr/bin/pip3",
+                          "/opt/homebrew/bin/pip", "/usr/local/bin/pip", "/usr/bin/pip"]
+        return candidates.contains { FileManager.default.isExecutableFile(atPath: $0) }
+    }
+
     var activeMirrorId: String {
         get { defaults.string(forKey: activeIdKey) ?? "official" }
         set { defaults.set(newValue, forKey: activeIdKey) }

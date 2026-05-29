@@ -12,11 +12,14 @@ final class PypiMirrorVM {
     var logs: [LogEntry] = []
     var activeMirrorId: String
 
+    let isInstalled: Bool
+
     private let service = PypiMirrorService()
     private let measurer = LatencyMeasurer()
 
     init() {
         activeMirrorId = service.activeMirrorId
+        isInstalled = PypiMirrorService.isInstalled()
     }
 
     var maxLatency: TimeInterval {
