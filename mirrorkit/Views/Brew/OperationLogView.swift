@@ -64,10 +64,10 @@ struct OperationLogView: View {
 
                     if log.detail != nil {
                         Spacer()
-                        Image(systemName: "chevron.down")
+                        Image(systemName: "chevron.right")
                             .font(.system(size: 9))
                             .foregroundColor(.prismTextTertiary)
-                            .rotationEffect(.degrees(isExpanded ? 180 : 0))
+                            .rotationEffect(.degrees(isExpanded ? 90 : 0))
                             .animation(.easeOut(duration: 0.2), value: isExpanded)
                     }
                 }
