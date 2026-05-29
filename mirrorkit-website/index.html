@@ -89,6 +89,28 @@
   }
   .btn-secondary:hover { border-color: var(--accent); color: var(--accent); }
 
+  .brew-install { margin-top: 24px; }
+  .brew-install-label {
+    font-size: 12px; color: var(--text-secondary); margin-bottom: 8px; display: block;
+  }
+  .brew-install-command {
+    display: inline-flex; align-items: center; gap: 0;
+    background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+    overflow: hidden;
+  }
+  .brew-install-command code {
+    padding: 8px 16px; font-size: 13px; color: var(--accent);
+    font-family: "SF Mono", Menlo, monospace;
+  }
+  .brew-install-command .copy-btn {
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 8px 12px; border: none; border-left: 1px solid var(--border);
+    background: var(--surface-alt); color: var(--text-secondary);
+    font-size: 12px; cursor: pointer; transition: background 0.2s, color 0.2s;
+  }
+  .brew-install-command .copy-btn:hover { background: var(--accent-dim); color: var(--accent); }
+  .brew-install-command .copy-btn.copied { background: rgba(52,211,153,0.15); color: var(--success); }
+
   .theme-toggle {
     background: none; border: none; cursor: pointer;
     color: var(--text-secondary); padding: 6px; margin-right: 8px;
@@ -101,6 +123,8 @@
   [data-theme="light"] .theme-toggle .sun { display: block; }
   [data-theme="light"] .theme-toggle .moon { display: none; }
 
+  .reveal { opacity: 0; transform: translateY(24px); transition: opacity 0.6s ease-out, transform 0.6s ease-out; }
+  .reveal.visible { opacity: 1; transform: translateY(0); }
   section { max-width: 1280px; margin: 0 auto; padding: 0 24px; }
   .section-header { text-align: center; margin-bottom: 48px; }
   .section-header h2 {
@@ -150,20 +174,30 @@
 
   .tools-section { padding: 80px 0; }
   .tools-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
-    gap: 16px;
+    overflow: hidden;
+  }
+  .tools-track {
+    display: flex; gap: 16px; width: fit-content;
+    animation: tools-scroll 24s ease-in-out infinite;
+  }
+  .tools-grid:hover .tools-track { animation-play-state: paused; }
+  @keyframes tools-scroll {
+    0%, 5% { transform: translateX(0); }
+    40%, 50% { transform: translateX(calc((175px + 16px) * -3 + 16px)); }
+    90%, 100% { transform: translateX(0); }
   }
   .tool-card {
+    flex: 0 0 175px; width: 175px; height: 175px; scroll-snap-align: start;
     background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
-    padding: 16px; text-align: center;
+    padding: 20px 16px; text-align: center;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
     transition: border-color 0.2s;
   }
   .tool-card:hover { border-color: var(--accent); }
   .tool-card .tool-icon {
     width: 40px; height: 40px;
     display: flex; align-items: center; justify-content: center;
-    margin: 12px auto;
+    margin: 0 auto 8px;
     line-height: 0;
   }
   .tool-card .tool-icon img,
@@ -215,20 +249,18 @@
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 24px;
-    counter-reset: step;
   }
   .step-card {
     background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
     padding: 28px 24px; text-align: center;
     position: relative;
   }
-  .step-card::before {
-    counter-increment: step;
-    content: "0" counter(step);
-    display: inline-flex; align-items: center; justify-content: center;
-    min-width: 48px; height: 28px;
-    color: var(--accent); font-size: 16px; font-weight: 700; letter-spacing: 0.05em;
-    margin-bottom: 16px;
+  .step-icon {
+    display: block; margin-bottom: 12px;
+    font-size: 20px; font-weight: 700; color: var(--accent);
+  }
+  .step-icon svg {
+    width: 24px; height: 24px; color: var(--accent);
   }
   .step-card .arrow-line {
     position: absolute; right: -14px; top: 50%; transform: translateY(-50%);
@@ -267,10 +299,12 @@
     .steps { grid-template-columns: 1fr; }
     .steps .step-card .arrow-line { display: none; }
     .features-grid { grid-template-columns: 1fr; }
-    .tools-grid { grid-template-columns: repeat(3, 1fr); }
+    .tools-track { gap: 12px; }
+    .tool-card { flex: 0 0 150px; width: 150px; height: 150px; padding: 16px 12px; }
   }
   @media (max-width: 480px) {
-    .tools-grid { grid-template-columns: repeat(2, 1fr); }
+    .tools-track { gap: 10px; }
+    .tool-card { flex: 0 0 130px; width: 130px; height: 130px; padding: 12px 10px; }
     .cta-section h2 { font-size: 28px; }
   }
 </style>
@@ -300,7 +334,7 @@
   </div>
 </nav>
 
-<section class="hero" id="hero">
+<section class="hero reveal" id="hero">
   <div class="hero-text">
     <span class="badge">原生 macOS 应用</span>
     <h1>极速切换 <span class="highlight">开发工具镜像源</span></h1>
@@ -318,55 +352,71 @@
         GitHub
       </a>
     </div>
+    <div class="brew-install">
+      <span class="brew-install-label">也可用 Homebrew 安装</span>
+      <div class="brew-install-command">
+        <code>brew install mirrorkit</code>
+        <button class="copy-btn" onclick="navigator.clipboard.writeText('brew install mirrorkit'); this.classList.add('copied'); var t=this; setTimeout(function(){t.classList.remove('copied')},2000);">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          <span>复制</span>
+        </button>
+      </div>
+    </div>
   </div>
   <div class="hero-visual">
     <div class="screenshot-wrapper">
       <img class="screenshot-dark" src="assets/screenshot_dark.jpg" alt="MirrorKit">
       <img class="screenshot-light" src="assets/screenshot_light.jpg" alt="MirrorKit">
+      </div>
     </div>
-  </div>
 </section>
 
-<section class="tools-section" id="tools">
+<section class="tools-section reveal" id="tools">
   <div class="section-header">
     <h2>支持的工具</h2>
     <p>覆盖主流开发工具的镜像源管理，持续增加中</p>
   </div>
   <div class="tools-grid">
-    <div class="tool-card">
-      <span class="tool-icon"><img src="https://cdn.simpleicons.org/homebrew" alt="Homebrew"></span>
-      <h4>Homebrew</h4><p>Brew 镜像源切换</p>
-    </div>
-    <div class="tool-card">
-      <span class="tool-icon"><img src="https://cdn.simpleicons.org/github" alt="GitHub"></span>
-      <h4>GitHub</h4><p>Git 镜像加速</p>
-    </div>
-    <div class="tool-card">
-      <span class="tool-icon"><img src="https://cdn.simpleicons.org/iterm2" alt="Oh My Zsh"></span>
-      <h4>Oh My Zsh</h4><p>Git remote 镜像</p>
-    </div>
-    <div class="tool-card">
-      <span class="tool-icon"><img src="https://cdn.simpleicons.org/pypi" alt="PyPI"></span>
-      <h4>PyPI</h4><p>pip 镜像源</p>
-    </div>
-    <div class="tool-card">
-      <span class="tool-icon"><img src="https://cdn.simpleicons.org/nodedotjs" alt="Node.js"></span>
-      <h4>Node.js</h4><p>npm registry 镜像</p>
-    </div>
-    <div class="tool-card">
-      <span class="tool-icon"><img src="https://cdn.simpleicons.org/rust" alt="Rust"></span>
-      <h4>Rustup</h4><p>Rust 工具链镜像</p>
-      <span class="coming-soon">Coming Soon</span>
-    </div>
-    <div class="tool-card">
-      <span class="tool-icon"><img src="https://cdn.simpleicons.org/flutter" alt="Flutter"></span>
-      <h4>Flutter</h4><p>Flutter 镜像源</p>
-      <span class="coming-soon">Coming Soon</span>
+    <div class="tools-track">
+      <div class="tool-card">
+        <span class="tool-icon"><img src="https://cdn.simpleicons.org/homebrew" alt="Homebrew"></span>
+        <h4>Homebrew</h4><p>Brew 镜像源切换</p>
+      </div>
+      <div class="tool-card">
+        <span class="tool-icon"><img src="https://cdn.simpleicons.org/iterm2" alt="Oh My Zsh"></span>
+        <h4>Oh My Zsh</h4><p>Git remote 镜像</p>
+      </div>
+      <div class="tool-card">
+        <span class="tool-icon"><img src="https://cdn.simpleicons.org/github" alt="GitHub"></span>
+        <h4>GitHub</h4><p>Git 镜像加速</p>
+      </div>
+      <div class="tool-card">
+        <span class="tool-icon"><img src="https://cdn.simpleicons.org/nodedotjs" alt="Node.js"></span>
+        <h4>Node.js Release</h4><p>二进制下载镜像</p>
+      </div>
+      <div class="tool-card">
+        <span class="tool-icon"><img src="https://cdn.simpleicons.org/pypi" alt="PyPI"></span>
+        <h4>PyPI</h4><p>pip 镜像源</p>
+      </div>
+      <div class="tool-card">
+        <span class="tool-icon"><img src="https://cdn.simpleicons.org/go" alt="Go"></span>
+        <h4>Go Module Proxy</h4><p>GOPROXY 镜像</p>
+      </div>
+      <div class="tool-card">
+        <span class="tool-icon"><img src="https://cdn.simpleicons.org/rust" alt="Rust"></span>
+        <h4>Rustup</h4><p>Rust 工具链镜像</p>
+        <span class="coming-soon">Coming Soon</span>
+      </div>
+      <div class="tool-card">
+        <span class="tool-icon"><img src="https://cdn.simpleicons.org/flutter" alt="Flutter"></span>
+        <h4>Flutter</h4><p>Flutter 镜像源</p>
+        <span class="coming-soon">Coming Soon</span>
+      </div>
     </div>
   </div>
 </section>
 
-<section class="features-section" id="features">
+<section class="features-section reveal" id="features">
   <div class="section-header">
     <h2>为什么选择 MirrorKit</h2>
     <p>专为中国开发者打造的镜像管理工具</p>
@@ -405,42 +455,45 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
       </div>
       <h3>多工具覆盖</h3>
-      <p>Brew、GitHub、Oh My Zsh、PyPI、Node.js、Rustup 等主流工具一站管理。统一的操作界面，零学习成本。</p>
+      <p>Homebrew、Oh My Zsh、GitHub、Node.js、PyPI、Go 等主流工具一站管理。统一的 Prism 界面，零学习成本。</p>
     </div>
     <div class="feature-card">
       <div class="feature-icon-wrap">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="4" rx="1"/><rect x="3" y="10" width="18" height="4" rx="1"/><rect x="3" y="17" width="18" height="4" rx="1"/></svg>
       </div>
-      <h3>操作日志</h3>
-      <p>每次切换都有详细的操作日志，记录切换时间、源地址和执行结果。问题排查一目了然。</p>
+      <h3>菜单栏快速切换</h3>
+      <p>无需打开应用，从 Mac 顶部菜单栏即可直接切换镜像源。支持所有已接入工具的镜像选择，随点随切。</p>
     </div>
   </div>
 </section>
 
-<section class="how-section" id="how">
+<section class="how-section reveal" id="how">
   <div class="section-header">
     <h2>三步搞定</h2>
     <p>打开即用，无需复杂配置</p>
   </div>
   <div class="steps">
     <div class="step-card">
+      <span class="step-icon">1</span>
       <h3>打开 MirrorKit</h3>
-      <p>启动应用，主界面清晰列出所有支持的工具</p>
+      <p>启动应用，主界面清晰列出所有支持的工具。顶部菜单栏出现 MirrorKit 图标</p>
       <span class="arrow-line"></span>
     </div>
     <div class="step-card">
+      <span class="step-icon">2</span>
       <h3>选择工具</h3>
-      <p>点击任意工具进入镜像管理页，查看可用镜像源列表</p>
+      <p>在应用内或从菜单栏下拉选择任意工具，查看可用镜像源列表</p>
       <span class="arrow-line"></span>
     </div>
     <div class="step-card">
+      <span class="step-icon">3</span>
       <h3>点击切换</h3>
-      <p>选择一个镜像源，应用自动完成所有配置，即刻生效</p>
+      <p>选择一个镜像源，应用自动完成所有配置，菜单栏状态同步更新</p>
     </div>
   </div>
 </section>
 
-<section class="cta-section">
+<section class="cta-section reveal">
   <h2>准备好告别慢速下载了吗？</h2>
   <p>免费下载 MirrorKit，体验极速镜像切换</p>
   <div class="cta-group">
@@ -461,6 +514,13 @@
 </footer>
 
 <script>
+(function() {
+  var observer = new IntersectionObserver(function(entries) {
+    entries.forEach(function(e) { if (e.isIntersecting) { e.target.classList.add('visible'); } });
+  }, { threshold: 0.15 });
+  document.querySelectorAll('.reveal').forEach(function(el) { observer.observe(el); });
+})();
+
 (function() {
   var html = document.documentElement;
   var toggle = document.getElementById('themeToggle');
