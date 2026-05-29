@@ -33,7 +33,7 @@ enum SidebarItem: String, Hashable, CaseIterable {
         case .github: return "chevron.left.forwardslash.chevron.right"
         case .nodejs: return "cube"
         case .pypi: return "square.stack.3d.up"
-        case .go: return "chevron.left.forwardslash.chevron.right"
+        case .go: return "point.3.connected.trianglepath.dotted"
         case .proxy: return "arrow.triangle.branch"
         case .diagnostics: return "stethoscope"
         }
